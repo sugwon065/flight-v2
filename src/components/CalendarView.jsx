@@ -54,15 +54,15 @@ function getTripLane(date, trip, tripRanges) {
         ...item,
         startDate: start,
         endDate: end,
-        continuedFromPreviousWeek: start < weekStart,
       }
     })
     .filter((item) => item.startDate <= weekEnd && item.endDate >= weekStart)
     .sort((left, right) => {
-      if (left.continuedFromPreviousWeek !== right.continuedFromPreviousWeek) {
-        return left.continuedFromPreviousWeek ? 1 : -1
+      const startDifference = left.startDate.getTime() - right.startDate.getTime()
+      if (startDifference !== 0) {
+        return startDifference
       }
-      return left.rank - right.rank
+      return right.rank - left.rank
     })
 
   return Math.max(0, activeTrips.findIndex((item) => item.rank === trip.rank))
@@ -131,6 +131,7 @@ function MonthCalendar({
                 style={{
                   '--trip-color': line.color,
                   bottom: `${3 + line.lane * 6}px`,
+                  zIndex: line.lane + 1,
                 }}
               >
                 {(line.type === 'start' || line.type === 'single') && (
