@@ -1,0 +1,173 @@
+.filter-sidebar {
+  position: sticky;
+  top: 16px;
+  width: 100%;
+  align-self: start;
+}
+
+.filter-card {
+  background: transparent;
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid #cbd5e1;
+  overflow: hidden;
+}
+
+.filter-stops {
+  padding: 8px 0 22px;
+}
+
+.filter-stops h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 16px;
+  color: #152536;
+  font-size: 19px;
+}
+
+.filter-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 0;
+  color: #263544;
+  font-size: 14px;
+}
+
+.filter-check input {
+  width: 20px;
+  height: 20px;
+  accent-color: #0876e8;
+}
+
+.filter-check span {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-check small {
+  margin-top: 2px;
+  color: #73808e;
+  font-size: 12px;
+}
+
+.filter-check.is-muted {
+  color: #9aa5b1;
+}
+
+.filter-section-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 0 14px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  text-align: left;
+}
+
+.filter-chevron {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.filter-section-body {
+  padding: 0 0 20px;
+  border-top: 0;
+}
+
+.filter-block {
+  padding-top: 16px;
+}
+
+.filter-block + .filter-block {
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.filter-block-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.time-range-label {
+  font-size: 13px;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.dual-slider {
+  position: relative;
+  height: 24px;
+}
+
+.dual-slider-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  transform: translateY(-50%);
+}
+
+.dual-slider-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: #0770e3;
+  border-radius: 2px;
+}
+
+.dual-slider-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.dual-slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #0770e3;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.dual-slider-input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #0770e3;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.dual-slider-input--max {
+  z-index: 2;
+}
+
+.dual-slider-input--min {
+  z-index: 3;
+}

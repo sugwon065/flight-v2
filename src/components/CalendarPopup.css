@@ -1,0 +1,262 @@
+.cal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 120px;
+  z-index: 1000;
+}
+
+.cal-popup {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+  width: 680px;
+  max-width: 95vw;
+  overflow: hidden;
+}
+
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cal-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.cal-nav {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #64748b;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-nav:hover {
+  background: #f1f5f9;
+}
+
+.cal-body {
+  padding: 20px;
+}
+
+.cal-hint {
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.cal-months {
+  display: flex;
+  gap: 24px;
+}
+
+.month-cal {
+  flex: 1;
+}
+
+.month-title {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+
+.weekday-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  padding: 4px 0;
+}
+
+.weekday:first-child {
+  color: #ef4444;
+}
+
+.weekday:last-child {
+  color: #0770e3;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cal-day {
+  position: relative;
+  aspect-ratio: 1;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 6px;
+  gap: 2px;
+  transition: background 0.1s;
+  overflow: visible;
+}
+
+.cal-day.empty {
+  pointer-events: none;
+}
+
+.cal-day:hover:not(.empty) {
+  background: #f1f5f9;
+}
+
+.cal-day.selected-start,
+.cal-day.selected-end {
+  background: #0770e3;
+  color: #fff;
+}
+
+.cal-day.in-range {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.day-lines {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.range-line {
+  position: absolute;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.range-line--trip {
+  background: var(--trip-color);
+  height: 3px;
+  opacity: 0.95;
+}
+
+.range-line--trip.range-line--single {
+  left: 20%;
+  right: 20%;
+}
+
+.range-line--trip.range-line--start {
+  left: 50%;
+  right: 0;
+  border-radius: 2px 0 0 2px;
+}
+
+.range-line--trip.range-line--end {
+  left: 0;
+  right: 50%;
+  border-radius: 0 2px 2px 0;
+}
+
+.range-line--trip.range-line--middle {
+  left: 0;
+  right: 0;
+  border-radius: 0;
+}
+
+.range-line--trip.range-line--week-start.range-line--start {
+  left: 8%;
+}
+
+.range-line--trip.range-line--week-end.range-line--end {
+  right: 8%;
+}
+
+.day-num {
+  position: relative;
+  z-index: 1;
+  font-weight: 500;
+}
+
+.rank-legend {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.legend-line {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.cal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.cal-cancel {
+  background: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.cal-search {
+  background: #0770e3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cal-search:hover {
+  background: #055eb8;
+}
+
+@media (max-width: 640px) {
+  .cal-months {
+    flex-direction: column;
+  }
+}

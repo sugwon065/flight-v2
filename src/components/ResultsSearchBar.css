@@ -1,0 +1,109 @@
+.rs-bar {
+  background: #0a1a2e;
+  padding: 18px 0 24px;
+}
+
+.rs-bar-inner {
+  max-width: 1499px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rs-back {
+  background: transparent;
+  border: none;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 9px;
+  flex-shrink: 0;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.rs-back img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rs-back:hover {
+  filter: brightness(1.08);
+}
+
+.rs-route-box {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 6px 10px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.rs-route {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.rs-route-spacer {
+  width: 38px;
+}
+
+.rs-dates {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.rs-date-box {
+  height: 48px;
+  min-width: 104px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rs-date-arrow {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.rs-date-separator {
+  padding: 0 1px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .rs-dates {
+    display: none;
+  }
+}
