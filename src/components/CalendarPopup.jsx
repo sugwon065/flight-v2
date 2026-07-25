@@ -46,17 +46,22 @@ export default function CalendarPopup({
         </div>
 
         <div className="cal-footer">
-          <button className="cal-cancel" onClick={onClose} type="button">
-            닫기
-          </button>
-          <button
-            className="cal-search"
-            onClick={onConfirm}
-            disabled={!startDate || !endDate}
-            type="button"
-          >
-            선택
-          </button>
+          <p className="cal-footer-guide">
+            예: 8~9월을 검색하려면 8월 1일~9월 30일을 선택해 주세요.
+          </p>
+          <div className="cal-footer-actions">
+            <button className="cal-cancel" onClick={onClose} type="button">
+              닫기
+            </button>
+            <button
+              className="cal-search"
+              onClick={onConfirm}
+              disabled={!startDate || !endDate}
+              type="button"
+            >
+              선택
+            </button>
+          </div>
         </div>
       </div>
     </div>

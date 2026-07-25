@@ -130,7 +130,7 @@ function MonthCalendar({
                 className={`range-line range-line--trip ${getLineClass(line.type, date)}`}
                 style={{
                   '--trip-color': line.color,
-                  bottom: `${3 + line.lane * 6}px`,
+                  bottom: `${3 + (line.lane % 2) * 6}px`,
                   zIndex: line.lane + 1,
                 }}
               >

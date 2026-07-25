@@ -341,7 +341,6 @@ export default function SearchHome({
               onClick={() => setAlgorithmOpen(true)}
               aria-haspopup="dialog"
             >
-              <span aria-hidden="true">⌕</span>
               <strong>알고리즘</strong>
             </button>
           </div>
