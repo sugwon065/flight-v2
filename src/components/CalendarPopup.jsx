@@ -9,7 +9,12 @@ export default function CalendarPopup({
   onConfirm,
 }) {
   const handleDayClick = (date) => {
-    if (!startDate || endDate) {
+    if (startDate && endDate) {
+      onSelectRange(null, null)
+      return
+    }
+
+    if (!startDate) {
       onSelectRange(date, null)
       return
     }
