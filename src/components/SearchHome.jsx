@@ -181,7 +181,7 @@ export default function SearchHome({
             <span className="sh-top-icon sh-heart" aria-label="찜">♥</span>
             <a
               className="sh-avatar sh-github-button"
-              href="https://github.com/sugwon065/flight"
+              href="https://github.com/sugwon065/flight-v2"
               target="_blank"
               rel="noreferrer"
               aria-label="GitHub 프로젝트 저장소 열기"
