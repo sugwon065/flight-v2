@@ -384,6 +384,20 @@ button.sh-quick-card:focus-visible {
   outline-offset: 3px;
 }
 
+.sh-quick-card--guide {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+}
+
+.sh-quick-card--guide small {
+  color: #8fc8ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .sh-quick-card > span {
   width: 26px;
   display: inline-grid;
@@ -1045,24 +1059,6 @@ button.sh-quick-card:focus-visible {
   box-shadow: 0 7px 20px rgba(16, 55, 92, 0.09);
 }
 
-.sh-guide-step-card:not(:last-child)::after {
-  content: '→';
-  position: absolute;
-  z-index: 2;
-  top: 53%;
-  right: -34px;
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #aac4df;
-  border-radius: 50%;
-  background: #fff;
-  color: #16436f;
-  font-size: 22px;
-  font-weight: 700;
-}
-
 .sh-guide-step-card header {
   display: flex;
   align-items: center;
@@ -1530,15 +1526,6 @@ button.sh-quick-card:focus-visible {
   .sh-guide-flow {
     grid-template-columns: 1fr;
     gap: 20px;
-  }
-
-  .sh-guide-step-card:not(:last-child)::after {
-    top: auto;
-    right: 50%;
-    bottom: -29px;
-    width: 34px;
-    height: 34px;
-    transform: translateX(50%) rotate(90deg);
   }
 
   .sh-algorithm-body {

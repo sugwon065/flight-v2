@@ -320,19 +320,21 @@ export default function SearchHome({
         <div className="sh-content-inner sh-shell">
           <div className="sh-quick-links">
             <button
-              className="sh-quick-card"
+              className="sh-quick-card sh-quick-card--guide"
               type="button"
               onClick={() => setProjectOpen(true)}
               aria-haspopup="dialog"
             >
+              <small>클릭하세요</small>
               <strong>프로젝트 설명</strong>
             </button>
             <button
-              className="sh-quick-card"
+              className="sh-quick-card sh-quick-card--guide"
               type="button"
               onClick={() => setGuideOpen(true)}
               aria-haspopup="dialog"
             >
+              <small>클릭하세요</small>
               <strong>사용법</strong>
             </button>
             <button
