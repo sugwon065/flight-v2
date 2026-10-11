@@ -4,12 +4,19 @@ import { DESTINATION_IMAGES, HERO_IMAGE_CREDIT } from './destinationImages'
 import './RecommendationDashboard.css'
 import DateRangePicker from './DateRangePicker'
 import TripDurationSelect from './TripDurationSelect'
+import SearchFieldSelect from './SearchFieldSelect'
 import ResultsList from './ResultsList'
 import DestinationMap from './DestinationMap'
+import CityCarousel from './CityCarousel'
 import TRAVEL_DATE_RANGE from '../services/travelDateRange.json'
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 const LEVELS = ['최저가 구간', '저렴한 편', '보통', '비싼 편', '매우 비쌈']
+const AIRLINE_OPTIONS = [
+  { value: 'ALL', label: '전체 항공사' },
+  { value: 'LCC', label: '저비용 항공사' },
+  { value: 'FSC', label: '일반 항공사' },
+]
 const DESTINATION_ORDER = [
   'fukuoka', 'osaka-kansai', 'tokyo-narita', 'tokyo-haneda', 'sapporo', 'okinawa', 'nagoya',
   'hiroshima', 'kobe', 'kumamoto', 'kagoshima', 'sendai', 'matsuyama', 'shizuoka',
@@ -27,7 +34,7 @@ function Icon({ name, size = 20, ...props }) {
     calendar: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4m10-4v4M3 11h18m-13 4h2m4 0h2" /></>,
     map: <><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z" /><path d="M9 3v15m6-12v15" /></>,
     chevron: <path d="m9 5 7 7-7 7" />,
-    crown: <><path d="m3 6 4 5 5-8 5 8 4-5-2 14H5Z" /><path d="M6 16h12" /></>,
+    tag: <><path d="M20 13 13 20a2 2 0 0 1-2.8 0l-7.6-7.6A2 2 0 0 1 2 11V4a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6L20 10.2a2 2 0 0 1 0 2.8Z" /><circle cx="6.5" cy="6.5" r="1" /></>,
     arrow: <path d="M4 12h16m-6-6 6 6-6 6" />,
     info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6m0-10v1" /></>,
     check: <path d="m5 12 4 4 10-10" />,
@@ -41,7 +48,7 @@ function toMonthIndex(iso) {
   return year * 12 + month - 1
 }
 
-function PriceCalendar({ daily, periods, city, conditions, selectedDate, onSelectDate }) {
+function PriceCalendar({ daily, city, conditions, selectedDate, onSelectDate, selectionRequest }) {
   const pricesByDate = useMemo(() => new Map(daily.map((item) => [item.departure_date, item])), [daily])
   const lowestDate = useMemo(() => daily.reduce((lowest, item) => {
     if (!lowest || item.round_trip_price < lowest.round_trip_price
@@ -52,7 +59,7 @@ function PriceCalendar({ daily, periods, city, conditions, selectedDate, onSelec
   const lastMonth = toMonthIndex(conditions.endDate)
   const visibleMonthCount = Math.min(2, lastMonth - firstMonth + 1)
   const lastStartMonth = lastMonth - visibleMonthCount + 1
-  const initialMonth = toMonthIndex(selectedDate || periods[0]?.departure_date || conditions.startDate)
+  const initialMonth = toMonthIndex(selectedDate || conditions.startDate)
   const [viewMonth, setViewMonth] = useState(() => Math.max(firstMonth, Math.min(lastStartMonth, initialMonth)))
   const selectedTrip = pricesByDate.get(selectedDate)
   const selectedReturnDate = selectedTrip?.return_date
@@ -65,7 +72,7 @@ function PriceCalendar({ daily, periods, city, conditions, selectedDate, onSelec
       if (departureMonth >= bounded && returnMonth < bounded + visibleMonthCount) return bounded
       return Math.max(firstMonth, Math.min(lastStartMonth, departureMonth))
     })
-  }, [selectedDate, selectedReturnDate, firstMonth, lastStartMonth, visibleMonthCount])
+  }, [selectedDate, selectedReturnDate, firstMonth, lastStartMonth, visibleMonthCount, selectionRequest])
   const currentMonth = Math.max(firstMonth, Math.min(lastStartMonth, viewMonth))
   const visibleMonths = Array.from({ length: visibleMonthCount }, (_, index) => {
     const monthIndex = currentMonth + index
@@ -138,12 +145,21 @@ export default function RecommendationDashboard({ form, onFormChange, conditions
   const [guideOpen, setGuideOpen] = useState(false)
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [durationOpen, setDurationOpen] = useState(false)
+  const [airlineOpen, setAirlineOpen] = useState(false)
   const [mapOpen, setMapOpen] = useState(true)
+  const [calendarSelectionRequest, setCalendarSelectionRequest] = useState(0)
   const calendarRef = useRef(null)
   const searchRef = useRef(null)
   const guideRef = useRef(null)
   const guideTrigger = useRef(null)
   const citiesRef = useRef(null)
+  useEffect(() => {
+    if (!calendarSelectionRequest) return
+    const frame = window.requestAnimationFrame(() => {
+      calendarRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [calendarSelectionRequest])
   useEffect(() => {
     if (!guideOpen) return
     const previousFocus = guideTrigger.current
@@ -192,6 +208,7 @@ export default function RecommendationDashboard({ form, onFormChange, conditions
   }
   const resetSearch = () => {
     setDurationOpen(false)
+    setAirlineOpen(false)
     setMapOpen(true)
     setDatePickerOpen(false)
     setGuideOpen(false)
@@ -201,6 +218,7 @@ export default function RecommendationDashboard({ form, onFormChange, conditions
   const submitSearch = async (event) => {
     event.preventDefault()
     setDurationOpen(false)
+    setAirlineOpen(false)
     setMapOpen(false)
     const singleDestinationSearch = form.destinationIds.length === 1
     const searched = await onSearch()
@@ -212,6 +230,10 @@ export default function RecommendationDashboard({ form, onFormChange, conditions
   const selectCity = (city) => {
     onSelectCity(city)
     window.requestAnimationFrame(() => citiesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  }
+  const selectPeriod = (item) => {
+    onSelectDate(item.departure_date)
+    setCalendarSelectionRequest((current) => current + 1)
   }
   const destinationCode = destinations.find((destination) => destination.id === selectedCity?.destination_id)?.airportCode
   const dailyPrices = useMemo(() => getDailyFlightPrices(cityCandidates), [cityCandidates])
@@ -250,16 +272,16 @@ export default function RecommendationDashboard({ form, onFormChange, conditions
       <form className="sf-search-panel" ref={searchRef} onSubmit={submitSearch} aria-label="여행 조건 검색">
         <div className="sf-search-primary">
           <div className="sf-origin sf-search-field"><Icon name="pin" /><div><span className="sf-field-label">출발지</span><strong>인천 (ICN)</strong></div></div>
-          <TripDurationSelect value={form.tripDays} onChange={(days) => onFormChange('tripDays', days)} open={durationOpen} onOpenChange={setDurationOpen} icon={<Icon name="calendar" />} />
+          <TripDurationSelect value={form.tripDays} onChange={(days) => onFormChange('tripDays', days)} open={durationOpen} onOpenChange={(open) => { setDurationOpen(open); if (open) setAirlineOpen(false) }} icon={<Icon name="calendar" />} />
           <button type="button" className="sf-search-field sf-date-field sf-date-trigger" aria-label="여행 후보 기한 선택" aria-haspopup="dialog" aria-expanded={datePickerOpen} onClick={() => setDatePickerOpen(true)}>
             <Icon name="calendar" /><span className="sf-search-control-value"><span className="sf-field-label">여행 후보 기한</span><span className="sf-date-trigger-value">{form.startDate ? form.startDate.replaceAll('-', '.') : '시작일'}<i>–</i>{form.endDate ? form.endDate.replaceAll('-', '.') : '종료일'}</span></span><Icon name="calendar" size={16} className="sf-date-trigger-icon" />
           </button>
-          <label className="sf-search-field sf-airline-field" htmlFor="sf-airline-type">
-            <Icon name="plane" /><span className="sf-search-control-value"><span className="sf-field-label">항공사</span><select id="sf-airline-type" aria-label="항공사 유형" value={form.airlineType} onChange={(event) => onFormChange('airlineType', event.target.value)}><option value="ALL">전체 항공사</option><option value="LCC">저비용 항공사</option><option value="FSC">일반 항공사</option></select></span>
-          </label>
+          <SearchFieldSelect id="sf-airline-type" label="항공사" options={AIRLINE_OPTIONS} fieldClassName="sf-airline-field"
+            value={form.airlineType} onChange={(type) => onFormChange('airlineType', type)} open={airlineOpen}
+            onOpenChange={(open) => { setAirlineOpen(open); if (open) setDurationOpen(false) }} icon={<Icon name="plane" />} />
           <button type="submit" className="sf-search-button" disabled={loading}><Icon name="search" />{loading ? '가격 비교 중…' : form.destinationIds.length === 1 ? '최저가 일정 찾기' : '최저가 도시 찾기'}</button>
         </div>
-        <div className="sf-destination-field" role="group" aria-labelledby="sf-destination-label">
+        <div className="sf-destination-field" role="group" aria-labelledby="sf-destination-label" aria-describedby="sf-destination-multi-hint">
           <div className="sf-destination-label"><Icon name="pin" size={18} /><strong id="sf-destination-label">도착지</strong><small>복수 선택 가능</small></div>
           <div className="sf-destination-options">
             <button id="sf-destination-all" type="button" className={'sf-destination-chip' + (!form.destinationIds.length ? ' is-selected' : '')}
@@ -268,11 +290,12 @@ export default function RecommendationDashboard({ form, onFormChange, conditions
             {orderedDestinations.slice(0, destinationRowBreak).map(renderDestinationButton)}
           </div>
           <button id="sf-destination-map-toggle" type="button" className={'sf-destination-map-toggle' + (mapOpen ? ' is-open' : '')}
-            aria-expanded={mapOpen} aria-controls="sf-destination-map" onClick={() => setMapOpen((open) => !open)}>
+            aria-expanded={mapOpen} aria-controls="sf-destination-map" aria-describedby={mapOpen ? 'sf-map-selection-hint' : undefined} onClick={() => setMapOpen((open) => !open)}>
             <Icon name="map" size={13} />{mapOpen ? '지도 접기' : '지도 보기'}
           </button>
           <div className="sf-destination-options">
             {orderedDestinations.slice(destinationRowBreak).map(renderDestinationButton)}
+            <span id="sf-destination-multi-hint" className="sf-destination-multi-hint"><Icon name="check" size={13} /><span><strong>여러 도시를 골라</strong> 가격을 비교해 보세요</span></span>
           </div>
         </div>
         {mapOpen && <DestinationMap destinations={orderedDestinations} selectedIds={form.destinationIds} onToggle={toggleDestination} />}
@@ -281,17 +304,15 @@ export default function RecommendationDashboard({ form, onFormChange, conditions
 
       {error && <div className="sf-status sf-status--error" role="alert"><Icon name="info" />{error}</div>}
       {hasSearched && !singleDestinationMode && <section className="sf-city-section" ref={citiesRef} aria-labelledby="sf-cities-heading" aria-busy={loading}>
-        <div className="sf-section-heading"><div><Icon name="crown" size={27} /><h2 id="sf-cities-heading">가격이 낮은 도시 <span>TOP {cities.length || 5}</span></h2></div></div>
-        {loading ? <div className="sf-city-grid sf-skeletons" role="status" aria-label="도시 가격을 비교하는 중">{Array.from({ length: 5 }, (_, index) => <div className="sf-city-skeleton" key={index}><div /><span /><span /></div>)}</div> : cities.length ? <div className="sf-city-grid">
-          {cities.map((city) => {
-            const photo = DESTINATION_IMAGES[city.destination_id]
-            const selected = selectedCity?.destination_id === city.destination_id
-            return <button key={city.destination_id} type="button" className={'sf-city-card' + (selected ? ' is-selected' : '')} onClick={() => selectCity(city)} aria-pressed={selected} aria-label={`${city.rank}위 ${city.destination} 왕복 최저가 ${money(city.round_trip_price)}원 가격 달력 보기`}>
-              <div className="sf-city-photo"><DestinationPhoto city={city} photo={photo} /><span className={'sf-city-rank' + (city.rank === 1 ? ' is-first' : '')}>{city.rank}</span>{selected && <span className="sf-city-selected-mark" aria-label="선택한 도시"><Icon name="check" size={14} /></span>}</div>
-              <div className="sf-city-body"><div className="sf-city-name"><h3>{city.destination}</h3></div><div className="sf-city-bottom"><div><span className="sf-city-price-basis">왕복</span><strong>{money(city.round_trip_price)}<small>원</small></strong></div><span className="sf-card-arrow"><Icon name="chevron" size={17} /></span></div><p>{shortDate(city.departure_date)} 출발 · {conditions.tripDays - 1}박 {conditions.tripDays}일</p></div>
-            </button>
-          })}
-        </div> : !error && <div className="sf-status sf-empty-results"><Icon name="calendar" size={32} /><h3>조건에 맞는 일정이 없습니다.</h3><p>여행 후보 기한이나 항공사 조건을 변경하세요.</p></div>}
+        <div className="sf-section-heading"><div><Icon name="tag" size={22} /><h2 id="sf-cities-heading">가격이 낮은 도시 <span>TOP {Math.min(cities.length, 5) || 5}</span></h2></div></div>
+        {loading ? <div className="sf-city-grid sf-skeletons" role="status" aria-label="도시 가격을 비교하는 중">{Array.from({ length: 5 }, (_, index) => <div className="sf-city-skeleton" key={index}><div /><span /><span /></div>)}</div> : cities.length ? <CityCarousel cities={cities} renderCity={(city) => {
+          const photo = DESTINATION_IMAGES[city.destination_id]
+          const selected = selectedCity?.destination_id === city.destination_id
+          return <button key={city.destination_id} type="button" className={'sf-city-card' + (selected ? ' is-selected' : '')} onClick={() => selectCity(city)} aria-pressed={selected} aria-label={`${city.rank}위 ${city.destination} ${shortDate(city.departure_date)} 출발 왕복 최저가 ${money(city.round_trip_price)}원 가격 달력 보기`}>
+            <div className="sf-city-photo"><DestinationPhoto city={city} photo={photo} /><span className={'sf-city-rank' + (city.rank === 1 ? ' is-first' : '')}>{city.rank}</span>{selected && <span className="sf-city-selected-mark" aria-label="선택한 도시"><Icon name="check" size={14} /></span>}</div>
+            <div className="sf-city-body"><div className="sf-city-name"><h3>{city.destination}</h3></div><div className="sf-city-bottom"><div><span className="sf-city-price-basis">왕복</span><strong>{money(city.round_trip_price)}<small>원</small></strong></div><span className="sf-card-arrow"><Icon name="chevron" size={17} /></span></div><p className="sf-city-departure"><time dateTime={city.departure_date}>{Number(city.departure_date.slice(5, 7))}월 {Number(city.departure_date.slice(8, 10))}일</time><span>출발</span></p></div>
+          </button>
+        }} /> : !error && <div className="sf-status sf-empty-results"><Icon name="calendar" size={32} /><h3>조건에 맞는 일정이 없습니다.</h3><p>여행 후보 기한이나 항공사 조건을 변경하세요.</p></div>}
       </section>}
 
       {hasSearched && singleDestinationMode && (loading || (!selectedCity && !error)) && <section className="sf-calendar-section" ref={calendarRef} aria-busy={loading}>
@@ -300,21 +321,21 @@ export default function RecommendationDashboard({ form, onFormChange, conditions
 
 
       {hasSearched && !loading && selectedCity && <section className="sf-calendar-section" ref={calendarRef} aria-labelledby="sf-calendar-heading">
-        <div className="sf-calendar-section-heading"><div className="sf-calendar-title"><span className="sf-calendar-title-emoji" aria-hidden="true">🗓️</span><h2 id="sf-calendar-heading">{selectedCity.destination} <span>· 가격 달력</span></h2></div><div className="sf-calendar-heading-actions"><span className="sf-result-period">{conditions.startDate.replaceAll('-', '.')} – {conditions.endDate.replaceAll('-', '.')}<b>{conditions.tripDays - 1}박 {conditions.tripDays}일</b></span></div></div>
-        <PriceCalendar key={selectedCity.destination_id + conditions.startDate + conditions.endDate + conditions.tripDays + conditions.airlineType} daily={dailyPrices} periods={periods} city={selectedCity} conditions={conditions} selectedDate={selectedDate} onSelectDate={onSelectDate} />
+        <div className="sf-calendar-section-heading"><div className="sf-calendar-title"><Icon name="calendar" size={22} /><h2 id="sf-calendar-heading">{selectedCity.destination} <span>· 가격 달력</span></h2></div><div className="sf-calendar-heading-actions"><span className="sf-result-period">{conditions.startDate.replaceAll('-', '.')} – {conditions.endDate.replaceAll('-', '.')}<b>{conditions.tripDays - 1}박 {conditions.tripDays}일</b></span></div></div>
+        <PriceCalendar key={selectedCity.destination_id + conditions.startDate + conditions.endDate + conditions.tripDays + conditions.airlineType} daily={dailyPrices} city={selectedCity} conditions={conditions} selectedDate={selectedDate} onSelectDate={onSelectDate} selectionRequest={calendarSelectionRequest} />
         <div className="sf-period-recommendations">
           {selectedFlightOffer && <>
             <section className="sf-calendar-picked-flight" aria-labelledby="sf-selected-flight-heading"
               style={{ '--selected-flight-color': selectedFlightOffer.price_color }}>
               <div className="sf-period-heading"><Icon name="check" size={18} /><h3 id="sf-selected-flight-heading">선택한 여행 일정</h3></div>
               <ResultsList results={[selectedFlightOffer]} embedded variant="flight" airportCode={destinationCode}
-                activeRank={0} onSelect={(item) => onSelectDate(item.departure_date)} />
+                activeRank={0} onSelect={selectPeriod} />
             </section>
             <hr className="sf-flight-divider" />
           </>}
-          <div className="sf-period-heading"><Icon name="crown" size={18} /><h3>저렴한 여행 일정 TOP {periods.length}</h3><span>왕복 가격순</span></div>
+          <div className="sf-period-heading"><Icon name="tag" size={18} /><h3>저렴한 여행 일정 TOP {periods.length}</h3><span>왕복 가격순</span></div>
           <ResultsList results={periods} embedded variant="flight" airportCode={destinationCode}
-            activeRank={selectedRecommendedRank ?? null} onSelect={(item) => onSelectDate(item.departure_date)} />
+            activeRank={selectedRecommendedRank ?? null} onSelect={selectPeriod} selectOnCardClick />
         </div>
       </section>}
 

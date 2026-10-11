@@ -67,15 +67,13 @@ function colorText(color) {
 }
 
 function rankResults(items, colors = RANK_COLORS) {
-  return items.map((item, index) => ({
-    ...item,
-    rank: index + 1,
-    color: colors[index],
-    color_text: colorText(colors[index]),
-  }))
+  return items.map((item, index) => {
+    const color = colors[Math.min(index, colors.length - 1)]
+    return { ...item, rank: index + 1, color, color_text: colorText(color) }
+  })
 }
 
-export function findCheapestRegions(candidates) {
+export function findCheapestRegions(candidates, limit = 5) {
   const bestByDestination = new Map()
   for (const candidate of candidates) {
     const best = bestByDestination.get(candidate.destination_id)
@@ -83,7 +81,7 @@ export function findCheapestRegions(candidates) {
       bestByDestination.set(candidate.destination_id, candidate)
     }
   }
-  return rankResults([...bestByDestination.values()].sort(comparePrice).slice(0, 5))
+  return rankResults([...bestByDestination.values()].sort(comparePrice).slice(0, limit))
 }
 
 export function findCheapestPeriods(candidates, destinationId) {

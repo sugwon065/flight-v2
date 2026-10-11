@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import RecommendationDashboard from './components/RecommendationDashboard'
 import TRAVEL_DATE_RANGE from './services/travelDateRange.json'
+import { resetVisitState } from './services/visitState'
 import { findCheapestPeriods, findCheapestRegions, loadDestinations, loadFlightCandidates, resolveDestinationIds } from './services/flightData'
 
 const INITIAL_FORM = {
-  destinationIds: [], startDate: TRAVEL_DATE_RANGE.startDate, endDate: TRAVEL_DATE_RANGE.endDate,
+  destinationIds: [], startDate: '2026-10-01', endDate: '2026-11-30',
   tripDays: 6, airlineType: 'ALL',
 }
 
@@ -75,6 +76,27 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    resetVisitState()
+    const previousScrollRestoration = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
+    window.scrollTo(0, 0)
+    const resetOnLeave = () => {
+      resetVisitState()
+      resetSearch()
+    }
+    const restartOnReturn = (event) => {
+      if (event.persisted) window.location.reload()
+    }
+    window.addEventListener('pagehide', resetOnLeave)
+    window.addEventListener('pageshow', restartOnReturn)
+    return () => {
+      window.removeEventListener('pagehide', resetOnLeave)
+      window.removeEventListener('pageshow', restartOnReturn)
+      window.history.scrollRestoration = previousScrollRestoration
+    }
+  }, [resetSearch])
+
+  useEffect(() => {
     let active = true
     loadDestinations().then((data) => { if (active) setDestinations(data) }).catch(() => {
       if (active) setError('도시 목록을 불러오지 못했습니다. 페이지를 새로고침해 주세요.')
@@ -83,7 +105,7 @@ export default function App() {
     return () => { active = false; latestRequest.current += 1 }
   }, [runSearch])
 
-  const cities = useMemo(() => findCheapestRegions(candidates), [candidates])
+  const cities = useMemo(() => findCheapestRegions(candidates, Infinity), [candidates])
   const cityCandidates = useMemo(() => candidates.filter((item) => item.destination_id === selectedCity?.destination_id), [candidates, selectedCity])
   const periods = useMemo(() => selectedCity ? findCheapestPeriods(candidates, selectedCity.destination_id) : [], [candidates, selectedCity])
   const selectedOffer = cityCandidates.find((item) => item.departure_date === selectedDate)

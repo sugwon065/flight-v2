@@ -2,6 +2,8 @@
 .sf-destination-map { width: calc(100% / var(--sf-map-scale)); box-sizing: border-box; padding: 18px; margin: 0; transform: scale(var(--sf-map-scale)); transform-origin: top left; border: 1px solid #dce7f4; border-radius: 12px; background: transparent; border-color: transparent; }
 .sf-map-stage { width: min(100%,1280px); aspect-ratio: 128 / 110; position: relative; margin-inline: auto; overflow: hidden; border: 1px solid #e3edf8; border-radius: 8px; background: #f3f9fd; touch-action: none; cursor: grab; user-select: none; }
 .sf-map-stage.is-dragging { cursor: grabbing; }
+.sf-map-selection-hint { position: absolute; z-index: 4; top: 4.5%; left: 3.5%; display: flex; flex-direction: column; gap: calc(2px * var(--sf-map-unit)); margin: 0; color: #68809d; font-size: calc(18px * var(--sf-map-unit)); line-height: 1.5; pointer-events: none; word-break: keep-all; }
+.sf-map-selection-hint strong { color: #3975be; font-weight: 650; }
 .sf-map-stage:focus-visible { outline: 2px solid #2274e5; outline-offset: 2px; }
 .sf-map-geography { display: block; position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .sf-map-land { fill: url(#sf-map-land-gradient); stroke: #7aade1; stroke-width: 1; }
@@ -26,9 +28,3 @@
 .sf-map-marker-check { font-size: 10.5px; font-weight: 800; line-height: 1; }
 .sf-map-marker-label { position: absolute; padding: 0; border: 0; background: transparent; color: #17375d; font-weight: 750; letter-spacing: -.04em; white-space: nowrap; text-align: left; text-shadow: -2px -2px 0 #f5fcff,2px -2px 0 #f5fcff,-2px 2px 0 #f5fcff,2px 2px 0 #f5fcff,0 0 4px #fff; }
 .sf-map-marker:hover .sf-map-marker-label,.sf-map-marker:focus-visible .sf-map-marker-label { color: var(--region-color); }
-.sf-map-zoom-controls { position: absolute; right: 13px; bottom: 13px; z-index: 8; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #cfdeed; border-radius: 8px; box-shadow: 0 3px 10px #16395712; }
-.sf-map-zoom-controls button { display: grid; place-items: center; width: 37px; height: 34px; padding: 0; border: 0; border-bottom: 1px solid #e3ebf5; background: #fff; color: #2c527d; font-size: 22px; line-height: 1; cursor: pointer; }
-.sf-map-zoom-controls button:last-child { border-bottom: 0; }
-.sf-map-zoom-controls button:hover:not(:disabled) { background: #eaf2ff; }
-.sf-map-zoom-controls button:disabled { color: #bfccd9; cursor: default; }
-.sf-map-zoom-controls .sf-map-reset { font-size: 10px; font-weight: 650; }

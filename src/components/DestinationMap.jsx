@@ -200,11 +200,6 @@ export default function DestinationMap({ destinations, selectedIds, onToggle }) 
     })
     return placeLabels(separateMarkers(points, unitScale, cards), unitScale, cards)
   }, [destinations, view, unitScale, cards])
-  const zoom = (factor) => setView((current) => {
-    const scale = clamp(current.scale * factor, 1, 6)
-    const ratio = scale / current.scale
-    return boundedView({ scale, x: WIDTH / 2 - (WIDTH / 2 - current.x) * ratio, y: HEIGHT / 2 - (HEIGHT / 2 - current.y) * ratio })
-  })
   const startDrag = (event) => {
     if (event.button !== 0 || event.target.closest?.('button')) return
     dragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, view }
@@ -233,8 +228,9 @@ export default function DestinationMap({ destinations, selectedIds, onToggle }) 
   }
 
   return <div className="sf-destination-map-shell" style={{ height: panelHeight }}><section ref={panelRef} className="sf-destination-map" id="sf-destination-map" aria-label="일본 도착지 선택">
-    <div ref={stageRef} className={'sf-map-stage' + (dragging ? ' is-dragging' : '')} tabIndex={0} role="region" aria-label="일본 도착지 지도. 드래그 또는 방향키로 지도를 이동할 수 있습니다."
+    <div ref={stageRef} className={'sf-map-stage' + (dragging ? ' is-dragging' : '')} tabIndex={0} role="region" aria-label="일본 도착지 지도. 드래그 또는 방향키로 지도를 이동할 수 있습니다." aria-describedby="sf-map-selection-hint"
       onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={stopDrag} onPointerCancel={stopDrag} onLostPointerCapture={stopDrag} onKeyDown={moveWithKeys}>
+      <p id="sf-map-selection-hint" className="sf-map-selection-hint" style={{ '--sf-map-unit': unitScale }}><strong>지도에서도 도시를</strong><span>눌러 선택할 수 있어요.</span></p>
       <svg className="sf-map-geography" viewBox={'0 0 ' + WIDTH + ' ' + HEIGHT} aria-hidden="true">
         <defs><linearGradient id="sf-map-land-gradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#cbe5fc" /><stop offset="100%" stopColor="#9fc9f0" /></linearGradient></defs>
         <g transform={'translate(' + view.x + ' ' + view.y + ') scale(' + view.scale + ')'}>
@@ -284,11 +280,6 @@ export default function DestinationMap({ destinations, selectedIds, onToggle }) 
             style={{ left: (label.x - x) * unitScale + 8.25, top: (label.y - y) * unitScale + 8.25, fontSize: label.fontSize, lineHeight: label.height * unitScale + 'px' }}>{destination.name}</span>}
         </button>
       })}
-      <div className="sf-map-zoom-controls">
-        <button type="button" onClick={() => zoom(1.4)} disabled={view.scale >= 6} aria-label="지도 확대">+</button>
-        <button type="button" onClick={() => zoom(1 / 1.4)} disabled={view.scale <= 1} aria-label="지도 축소">−</button>
-        <button type="button" onClick={() => setView(INITIAL_VIEW)} className="sf-map-reset" aria-label="일본 전체 지도 보기">전체</button>
-      </div>
     </div>
   </section></div>
 }

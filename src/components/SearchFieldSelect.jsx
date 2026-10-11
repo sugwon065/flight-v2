@@ -1,0 +1,92 @@
+import { useEffect, useRef, useState } from 'react'
+import './TripDurationSelect.css'
+
+export default function SearchFieldSelect({ id, label, options, fieldClassName = '', value, onChange, open, onOpenChange, icon }) {
+  const container = useRef(null)
+  const trigger = useRef(null)
+  const list = useRef(null)
+  const optionRefs = useRef([])
+  const selectedIndex = Math.max(0, options.findIndex((option) => option.value === value))
+  const [activeIndex, setActiveIndex] = useState(selectedIndex)
+
+  useEffect(() => {
+    if (!open) return
+    const closeOutside = (event) => {
+      if (!container.current?.contains(event.target)) onOpenChange(false)
+    }
+    document.addEventListener('pointerdown', closeOutside)
+    document.addEventListener('focusin', closeOutside)
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside)
+      document.removeEventListener('focusin', closeOutside)
+    }
+  }, [open, onOpenChange])
+
+  useEffect(() => {
+    if (!open) return
+    const menu = list.current
+    const option = optionRefs.current[activeIndex]
+    if (!menu || !option) return
+    const top = option.offsetTop
+    const bottom = top + option.offsetHeight
+    if (top < menu.scrollTop) menu.scrollTop = top
+    else if (bottom > menu.scrollTop + menu.clientHeight) menu.scrollTop = bottom - menu.clientHeight
+  }, [open, activeIndex])
+
+  const openList = (index = selectedIndex) => {
+    setActiveIndex(index)
+    onOpenChange(true)
+  }
+  const choose = (index) => {
+    onChange(options[index].value)
+    onOpenChange(false)
+    trigger.current?.focus({ preventScroll: true })
+  }
+  const handleKeyDown = (event) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      if (!open) openList()
+      else setActiveIndex((current) => Math.max(0, Math.min(options.length - 1, current + (event.key === 'ArrowDown' ? 1 : -1))))
+    } else if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault()
+      const index = event.key === 'Home' ? 0 : options.length - 1
+      if (!open) openList(index)
+      else setActiveIndex(index)
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      if (open) choose(activeIndex)
+      else openList()
+    } else if (event.key === 'Escape' && open) {
+      event.preventDefault()
+      event.stopPropagation()
+      onOpenChange(false)
+    } else if (event.key === 'Tab') {
+      onOpenChange(false)
+    }
+  }
+
+  return <div ref={container} className={fieldClassName + ' sf-duration-select' + (open ? ' is-open' : '')}>
+    <button ref={trigger} id={id} type="button" className="sf-search-field sf-duration-trigger"
+      role="combobox" aria-haspopup="listbox" aria-expanded={open}
+      aria-controls={open ? id + '-options' : undefined}
+      aria-activedescendant={open ? `${id}-option-${activeIndex}` : undefined}
+      aria-labelledby={id + '-label ' + id + '-value'}
+      onClick={() => open ? onOpenChange(false) : openList()} onKeyDown={handleKeyDown}>
+      {icon}
+      <span className="sf-search-control-value">
+        <span id={id + '-label'} className="sf-field-label">{label}</span>
+        <span id={id + '-value'} className="sf-duration-trigger-value">{options[selectedIndex].label}</span>
+      </span>
+      <svg className="sf-duration-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+    </button>
+    {open && <ul ref={list} id={id + '-options'} className="sf-duration-menu" role="listbox" aria-labelledby={id + '-label'}>
+      {options.map((option, index) => <li key={option.value} ref={(node) => { optionRefs.current[index] = node }}
+        id={`${id}-option-${index}`} role="option" aria-selected={option.value === value}
+        className={'sf-duration-option' + (index === activeIndex ? ' is-active' : '')}
+        onMouseEnter={() => setActiveIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(index)}>
+        <span>{option.label}</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m5 12 4 4 10-10" /></svg>
+      </li>)}
+    </ul>}
+  </div>
+}

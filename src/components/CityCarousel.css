@@ -1,0 +1,14 @@
+.sf-city-carousel { position: relative; min-width: 0; }
+.sf-city-carousel--more { display: grid; grid-template-columns: minmax(0,1fr) 44px; align-items: center; gap: 12px; }
+.sf-city-carousel-viewport { min-width: 0; overflow: hidden; padding: 2px; }
+.sf-city-carousel-track { display: flex; min-width: 0; transition: transform .3s ease; }
+.sf-city-carousel-track > .sf-city-grid { flex: 0 0 100%; min-width: 0; }
+.sf-city-carousel-previous, .sf-city-carousel-next { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 1px solid #dce5f0; border-radius: 50%; background: #fff; color: #345a87; cursor: pointer; transition: border-color .15s, background .15s; }
+.sf-city-carousel-previous:hover:not(:disabled), .sf-city-carousel-next:hover:not(:disabled) { background: #f2f7ff; border-color: #8eb6eb; color: #0755df; }
+.sf-city-carousel-previous { position: absolute; z-index: 2; left: -16px; top: 50%; transform: translateY(-50%); }
+.sf-city-carousel-previous:disabled { visibility: hidden; }
+.sf-city-carousel-next { justify-self: center; }
+.sf-city-carousel-next:disabled { color: #bbc5d1; border-color: #e7ecf2; background: #fafbfd; }
+.sf-city-carousel-next.is-more { width: 44px; height: auto; min-height: 60px; flex-direction: column; gap: 5px; border: 0; border-radius: 6px; background: transparent; color: #4b6686; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.sf-city-carousel-next.is-more:hover { background: #f2f7ff; color: #0755df; }
+.sf-city-carousel-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }

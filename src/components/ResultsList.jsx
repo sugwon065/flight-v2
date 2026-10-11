@@ -168,6 +168,7 @@ export default function ResultsList({
   showPromo = false,
   onSelect,
   selectLabel = '일정 선택',
+  selectOnCardClick = false,
   variant = 'default',
   airportCode,
 }) {
@@ -203,7 +204,11 @@ export default function ResultsList({
           <div key={`${item.rank}-${itemDestination}-${item.departure_date}`}>
             <article
               id={`flight-result-${item.rank}`}
-              className={`sky-card-wrap ${activeRank === item.rank ? 'sky-card-wrap--active' : ''}`}
+              className={`sky-card-wrap ${activeRank === item.rank ? 'sky-card-wrap--active' : ''}${selectOnCardClick ? ' sky-card-wrap--selectable' : ''}`}
+              onClick={selectOnCardClick ? (event) => {
+                if (event.target.closest('button, a, input, select, textarea')) return
+                onSelect?.(item)
+              } : undefined}
             >
               {variant !== 'flight' && <span
                 className="sky-card-rank"
