@@ -1,0 +1,264 @@
+export const DESTINATION_IMAGES = {
+  "saga": {
+    "file": "saga.jpg",
+    "title": "Hommaru of Saga Castle",
+    "alt": "사가성 본마루와 잔디 정원",
+    "author": "そらみみ",
+    "source": "https://commons.wikimedia.org/wiki/File:Hommaru_of_Saga_Castle.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "src": "/destinations/saga.jpg",
+    "position": "center 65%"
+  },
+  "yonago": {
+    "file": "yonago.jpg",
+    "title": "Tottori-Yumigahama Beach",
+    "alt": "요나고 유미가하마 해변과 다이센산",
+    "author": "米子市",
+    "source": "https://commons.wikimedia.org/wiki/File:Tottori-Yumigahama_Beach-xl.jpg",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "src": "/destinations/yonago.jpg"
+  },
+  "takamatsu": {
+    "file": "takamatsu.jpg",
+    "title": "Ritsurin Park Takamatsu Kagawa",
+    "alt": "다카마쓰 리쓰린 정원의 연못과 푸른 나무",
+    "author": "663highland",
+    "source": "https://commons.wikimedia.org/wiki/File:150504_Ritsurin_Park_Takamatsu_Kagawa_pref_Japan01s3.jpg",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "src": "/destinations/takamatsu.jpg"
+  },
+  "oita": {
+    "file": "oita.jpg",
+    "title": "Oita city seen from Ryozen",
+    "alt": "료젠산에서 바라본 오이타 시내",
+    "author": "Tabitan",
+    "source": "https://commons.wikimedia.org/wiki/File:Oita_city_seen_from_Ryozen.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "src": "/destinations/oita.jpg"
+  },
+  "fukuoka": {
+    "file": "fukuoka.jpg",
+    "title": "Fukuoka City from Fukuoka Tower",
+    "alt": "후쿠오카 타워에서 바라본 후쿠오카 시내",
+    "author": "そらみみ",
+    "source": "https://commons.wikimedia.org/wiki/File:Fukuoka_City_from_Fukuoka_Tower.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "src": "/destinations/fukuoka.jpg"
+  },
+  "kitakyushu": {
+    "file": "kitakyushu.jpg",
+    "title": "Kokura castle from the Japanese garden",
+    "alt": "기타큐슈 고쿠라성과 일본 정원",
+    "author": "Ian Ruxton (Historian)",
+    "source": "https://commons.wikimedia.org/wiki/File:Kokura_castle_from_the_Japanese_garden.jpg",
+    "license": "CC BY 2.5",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.5/",
+    "src": "/destinations/kitakyushu.jpg"
+  },
+  "matsuyama": {
+    "file": "matsuyama.jpg",
+    "title": "Matsuyama Castle",
+    "alt": "마쓰야마성의 천수각과 앞마당",
+    "author": "Drivephotographer",
+    "source": "https://commons.wikimedia.org/wiki/File:Matsuyama_Castle.jpg",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "src": "/destinations/matsuyama.jpg"
+  },
+  "tokyo-narita": {
+    "file": "tokyo-narita.jpg",
+    "title": "Worm's-eye view of Tokyo Skytree",
+    "alt": "푸른 하늘 아래 도쿄 스카이트리",
+    "author": "Basile Morin",
+    "source": "https://commons.wikimedia.org/wiki/File:Worm%27s-eye_view_of_Tokyo_Skytree_with_vertical_symmetry_impression,_a_sunny_day,_in_Japan.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "src": "/destinations/tokyo-narita.jpg"
+  },
+  "osaka-kansai": {
+    "file": "osaka-kansai.jpg",
+    "title": "Osaka Dotonbori yoru",
+    "alt": "오사카 도톤보리의 네온사인과 강변 야경",
+    "author": "Sakai Yayoi",
+    "source": "https://commons.wikimedia.org/wiki/File:Osaka_Dotonbori_yoru.jpg",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "src": "/destinations/osaka-kansai.jpg"
+  },
+  "okinawa": {
+    "file": "okinawa.jpg",
+    "title": "Nishibama beach Akajima Island Okinawa",
+    "alt": "오키나와 아카섬 니시바마 해변의 푸른 바다",
+    "author": "Si-take.",
+    "source": "https://commons.wikimedia.org/wiki/File:Nishibama_beach_Akajima_Island_Okinawa,JAPAN.jpg",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "src": "/destinations/okinawa.jpg"
+  },
+  "tokyo-haneda": {
+    "file": "tokyo-haneda.jpg",
+    "title": "Tokyo Tower at sunset",
+    "alt": "석양 아래 도쿄 타워",
+    "author": "Eckhard Pecher = User:Arcimboldo",
+    "source": "https://commons.wikimedia.org/wiki/File:Tokyo_Tower_at_sunset.JPG",
+    "license": "CC BY 2.5",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+    "src": "/destinations/tokyo-haneda.jpg",
+    "position": "center 55%"
+  },
+  "sapporo": {
+    "file": "sapporo.jpg",
+    "title": "Hokkaido Sapporo Odori Park",
+    "alt": "삿포로 오도리 공원과 시내 풍경",
+    "author": "Nkns",
+    "source": "https://commons.wikimedia.org/wiki/File:Hokkaido_Sapporo_Odori_Park.jpg",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "src": "/destinations/sapporo.jpg"
+  },
+  "nagoya": {
+    "file": "nagoya.jpg",
+    "title": "Nagoya Castle from Meijo Park",
+    "alt": "메이조 공원에서 바라본 나고야성",
+    "author": "Alpsdake",
+    "source": "https://commons.wikimedia.org/wiki/File:Nagoya_Castle_from_Meijo_Park.jpg",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "src": "/destinations/nagoya.jpg"
+  },
+  "hiroshima": {
+    "file": "hiroshima.jpg",
+    "title": "Atomic Bomb Dome Hiroshima",
+    "alt": "히로시마 평화기념공원의 원폭 돔",
+    "author": "SRP1998",
+    "source": "https://commons.wikimedia.org/wiki/File:Atomic_Bomb_Dome_Hiroshima.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "src": "/destinations/hiroshima.jpg"
+  },
+  "kobe": {
+    "file": "kobe.jpg",
+    "title": "Harborland1",
+    "alt": "고베 하버랜드의 항구 야경",
+    "author": "Wei-Te Wong",
+    "source": "https://commons.wikimedia.org/wiki/File:Harborland1.jpg",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "src": "/destinations/kobe.jpg"
+  },
+  "kumamoto": {
+    "file": "kumamoto.jpg",
+    "title": "Kumamoto castle 01",
+    "alt": "구마모토성 천수각",
+    "author": "ノボホショコロトソ",
+    "source": "https://commons.wikimedia.org/wiki/File:Kumamoto_castle_01.jpg",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "src": "/destinations/kumamoto.jpg"
+  },
+  "kagoshima": {
+    "file": "kagoshima.jpg",
+    "title": "Kagoshima city and Sakurajima",
+    "alt": "가고시마 시내와 사쿠라지마",
+    "author": "Toecheese-jp",
+    "source": "https://commons.wikimedia.org/wiki/File:Kagoshima_city_and_Sakurajima.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "src": "/destinations/kagoshima.jpg"
+  },
+  "sendai": {
+    "file": "sendai.jpg",
+    "title": "DownTown of SendaiCity01",
+    "alt": "센다이 도심 풍경",
+    "author": "Nryate",
+    "source": "https://commons.wikimedia.org/wiki/File:DownTown_of_SendaiCity01.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "src": "/destinations/sendai.jpg"
+  },
+  "shizuoka": {
+    "file": "shizuoka.jpg",
+    "title": "Mount Fuji and Port of Shimizu from Nihondaira",
+    "alt": "시즈오카 니혼다이라에서 바라본 후지산과 시미즈항",
+    "author": "Alpsdake",
+    "source": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_and_Port_of_Shimizu_from_Nihondaira.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "src": "/destinations/shizuoka.jpg"
+  },
+  "okayama": {
+    "file": "okayama.jpg",
+    "title": "Okayama Korakuen 01",
+    "alt": "오카야마 고라쿠엔 정원",
+    "author": "Zairon",
+    "source": "https://commons.wikimedia.org/wiki/File:Okayama_Korakuen_01.jpg",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "src": "/destinations/okayama.jpg"
+  },
+  "komatsu": {
+    "file": "komatsu.jpg",
+    "title": "260719 Natadera Komatsu Ishikawa pref Japan43s4",
+    "alt": "고마쓰 나타데라 사찰의 풍경",
+    "author": "663highland",
+    "source": "https://commons.wikimedia.org/wiki/File:260719_Natadera_Komatsu_Ishikawa_pref_Japan43s4.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "src": "/destinations/komatsu.jpg"
+  },
+  "niigata": {
+    "file": "niigata.jpg",
+    "title": "Bandai Bridge, Niigata, Japan 001",
+    "alt": "니가타 시나노강과 반다이 다리",
+    "author": "User: (WT-shared) Shoestring at wts wikivoyage",
+    "source": "https://commons.wikimedia.org/wiki/File:Bandai_Bridge,_Niigata,_Japan_001.JPG",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "src": "/destinations/niigata.jpg"
+  },
+  "hakodate": {
+    "file": "hakodate.jpg",
+    "title": "Hakodate night view",
+    "alt": "하코다테산에서 바라본 시내 야경",
+    "author": "https://www.flickr.com/people/oxborrow/",
+    "source": "https://commons.wikimedia.org/wiki/File:Hakodate_night_view.jpg",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "src": "/destinations/hakodate.jpg"
+  },
+  "miyazaki": {
+    "file": "miyazaki.jpg",
+    "title": "Aoshima, Miyazaki Prefecture",
+    "alt": "미야자키 아오시마의 해안 풍경",
+    "author": "No machine-readable author provided. Jason7825 assumed (based on copyright claims).",
+    "source": "https://commons.wikimedia.org/wiki/File:Aoshima,_Miyazaki_Prefecture.jpg",
+    "license": "Public domain",
+    "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "src": "/destinations/miyazaki.jpg"
+  },
+  "aomori": {
+    "file": "aomori.jpg",
+    "title": "Aomori Bay Bridge, Japan",
+    "alt": "아오모리 베이 브리지와 항구",
+    "author": "Arekkusu Quietus",
+    "source": "https://commons.wikimedia.org/wiki/File:Aomori_Bay_Bridge,_Japan.jpg",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "src": "/destinations/aomori.jpg"
+  }
+}
+
+export const HERO_IMAGE_CREDIT = {
+  "file": "hero-wing.jpg",
+  "title": "Sunset and wing of a airplane",
+  "alt": "석양 아래 비행기 날개",
+  "author": "Peter van der Sluijs",
+  "source": "https://commons.wikimedia.org/wiki/File:Sunset_and_wing_of_a_airplane.jpg",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/"
+}

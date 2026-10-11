@@ -8,8 +8,6 @@ import CalendarView from './CalendarView'
 import './ResultsPage.css'
 import './FilterSidebar.css'
 
-const RANK_COLORS = ['#22c55e', '#86efac', '#fde047', '#fb923c', '#ef4444']
-
 function formatSelectedPeriod(startDate, endDate) {
   const format = (value) => {
     if (!value) return ''
@@ -25,6 +23,9 @@ function formatSelectedPeriod(startDate, endDate) {
 
 export default function ResultsPage({
   destination,
+  stage,
+  onSelectRegion,
+  onBackToRegions,
   startDate,
   endDate,
   tripDays,
@@ -35,23 +36,11 @@ export default function ResultsPage({
   onSearchAgain,
 }) {
   const [timeOpen, setTimeOpen] = useState(true)
-  const [activeRank, setActiveRank] = useState(null)
+  const [activeRank, setActiveRank] = useState(stage === 'periods' ? results[0]?.rank ?? null : null)
 
-  const displayResults = [...results]
-    .sort((left, right) => left.round_trip_price - right.round_trip_price)
-    .map((item, index) => ({ ...item, rank: index + 1, color: RANK_COLORS[index] }))
-
-  const calendarResults = [...results]
-    .sort((left, right) => left.round_trip_price - right.round_trip_price)
-    .slice(0, 5)
-    .map((item, index) => ({ ...item, rank: index + 1, color: RANK_COLORS[index] }))
-  const calendarRanges = calendarResults.map((item) => ({
-    start: item.departure_date,
-    end: item.return_date,
-    color: item.color,
-    rank: item.rank,
-    destination: item.destination,
-  }))
+  const isRegionStage = stage === 'regions'
+  const displayResults = results
+  const calendarResults = results
   const toLocalDate = (value) => {
     if (!value) return null
     if (value instanceof Date) return value
@@ -61,6 +50,14 @@ export default function ResultsPage({
   const calendarEnd = toLocalDate(endDate)
 
   const handleCalendarTripClick = (rank) => {
+    if (isRegionStage) {
+      const region = results.find((item) => item.rank === rank)
+      if (region) {
+        onSelectRegion(region)
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      }
+      return
+    }
     setActiveRank(rank)
     window.requestAnimationFrame(() => {
       document
@@ -95,6 +92,15 @@ export default function ResultsPage({
           </div>
 
           <main className="results-col-center">
+            <div className="results-stage-header">
+              <h1>{isRegionStage ? '1단계 · 저렴한 지역 5개' : destination + ' · 저렴한 여행 기간 5개'}</h1>
+              <p>{isRegionStage
+                ? '지역별 가장 저렴한 일정을 비교했습니다. 출발일의 숫자나 아래 지역 카드를 선택해 여행 기간을 비교해 보세요.'
+                : '처음 선택한 날짜 범위 안에서 왕복 가격이 낮은 순서입니다. 기간이 겹치는 일정도 포함합니다.'}</p>
+              {onBackToRegions && (
+                <button className="results-region-back" onClick={onBackToRegions} type="button">← 저렴한 지역 5개 다시 보기</button>
+              )}
+            </div>
             {!loading && results.length > 0 && (
               <section className="results-calendar-card" aria-label="최저가 출발일 달력">
                 <div className="results-calendar-panel">
@@ -102,12 +108,14 @@ export default function ResultsPage({
                     startDate={calendarStart}
                     endDate={calendarEnd}
                     results={calendarResults}
-                    tripRanges={calendarRanges}
+                    activeRank={activeRank}
+                    regionStage={isRegionStage}
                     onTripClick={handleCalendarTripClick}
                     readOnly
                     initialYear={calendarStart?.getFullYear() || 2026}
                     initialMonth={calendarStart?.getMonth() || 0}
-                    showNav={false}
+                    showNav
+                    tripActionLabel={isRegionStage ? '저렴한 기간 5개 보기' : '항공권 보기'}
                     title={formatSelectedPeriod(startDate, endDate)}
                   />
                 </div>
@@ -115,7 +123,7 @@ export default function ResultsPage({
             )}
 
             {!loading && results.length > 0 && (
-              <div className="results-order-label">최저가 순</div>
+              <div className="results-order-label">{isRegionStage ? '지역별 최저가 순' : '여행 기간별 최저가 순'}</div>
             )}
 
             {error && <p className="results-page-error">{error}</p>}
@@ -126,6 +134,8 @@ export default function ResultsPage({
               tripDays={tripDays}
               destination={destination}
               activeRank={activeRank}
+              onSelect={(item) => handleCalendarTripClick(item.rank)}
+              selectLabel={isRegionStage ? '이 지역의 기간 5개 보기' : '이 일정 선택'}
               embedded
               showPromo={false}
             />

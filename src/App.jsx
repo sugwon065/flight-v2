@@ -1,117 +1,109 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import CalendarPopup from './components/CalendarPopup'
-import ResultsPage from './components/ResultsPage'
-import SearchHome from './components/SearchHome'
-import { loadDestinations, searchFlightDeals } from './services/flightData'
-import './App.css'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import RecommendationDashboard from './components/RecommendationDashboard'
+import TRAVEL_DATE_RANGE from './services/travelDateRange.json'
+import { findCheapestPeriods, findCheapestRegions, loadDestinations, loadFlightCandidates, resolveDestinationIds } from './services/flightData'
+
+const INITIAL_FORM = {
+  destinationIds: [], startDate: TRAVEL_DATE_RANGE.startDate, endDate: TRAVEL_DATE_RANGE.endDate,
+  tripDays: 6, airlineType: 'ALL',
+}
 
 export default function App() {
-  const [page, setPage] = useState('search')
+  const [form, setForm] = useState(INITIAL_FORM)
+  const [conditions, setConditions] = useState(INITIAL_FORM)
   const [destinations, setDestinations] = useState([])
-  const [destinationId, setDestinationId] = useState('japan-all')
-  const [startDate, setStartDate] = useState(new Date(2026, 0, 1))
-  const [endDate, setEndDate] = useState(new Date(2026, 1, 28))
-  const [tripDays, setTripDays] = useState(6)
-  const [airlineType, setAirlineType] = useState('ALL')
-  const [showCalendar, setShowCalendar] = useState(false)
-  const [results, setResults] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [candidates, setCandidates] = useState([])
+  const [selectedCity, setSelectedCity] = useState(null)
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [hasSearched, setHasSearched] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const latestRequest = useRef(0)
 
-  useEffect(() => {
-    loadDestinations()
-      .then(setDestinations)
-      .catch(() => setError('여행지 데이터를 불러오지 못했습니다.'))
-  }, [])
-
-  const destinationName = useMemo(
-    () => destinations.find((item) => item.id === destinationId)?.name || '일본 전체',
-    [destinationId, destinations],
-  )
-
-  const handleSearch = useCallback(async () => {
-    if (!startDate || !endDate) {
+  const runSearch = useCallback(async (nextForm) => {
+    if (!nextForm.startDate || !nextForm.endDate) {
       setError('여행 가능한 시작일과 종료일을 선택해 주세요.')
       return
     }
-    if (startDate > endDate) {
+    if (nextForm.startDate > nextForm.endDate) {
       setError('종료일은 시작일보다 뒤여야 합니다.')
       return
     }
-
-    setError('')
-    setLoading(true)
-    setShowCalendar(false)
-    setPage('results')
-    setResults([])
-
-    try {
-      const data = await searchFlightDeals({
-        destinationId,
-        startDate,
-        endDate,
-        tripDays,
-        airlineType,
-      })
-      setResults(data)
-    } catch {
-      setError('검색 데이터를 불러오지 못했습니다. 2026년 범위에서 다시 선택해 주세요.')
-    } finally {
-      setLoading(false)
+    if (nextForm.startDate < TRAVEL_DATE_RANGE.startDate || nextForm.endDate > TRAVEL_DATE_RANGE.endDate) {
+      setError(`여행 후보 기한은 ${TRAVEL_DATE_RANGE.startDate.replaceAll('-', '.')} ~ ${TRAVEL_DATE_RANGE.endDate.replaceAll('-', '.')} 안에서 선택해 주세요.`)
+      return
     }
-  }, [airlineType, destinationId, endDate, startDate, tripDays])
-
-  const handleBackToSearch = () => {
-    setPage('search')
+    const searchForm = { ...nextForm, destinationIds: resolveDestinationIds(nextForm) }
+    const request = ++latestRequest.current
+    setHasSearched(true)
+    setLoading(true)
+    setConditions(searchForm)
     setError('')
-  }
+    setSelectedCity(null)
+    setSelectedDate(null)
+    setCandidates([])
+    try {
+      const data = await loadFlightCandidates({
+        ...searchForm,
+        startDate: new Date(nextForm.startDate + 'T00:00:00'),
+        endDate: new Date(nextForm.endDate + 'T00:00:00'),
+      }, { refresh: true })
+      if (latestRequest.current !== request) return
+      setCandidates(data)
+      setSelectedCity(findCheapestRegions(data)[0] ?? null)
+      setSelectedDate(null)
+      return true
+    } catch {
+      if (latestRequest.current === request) setError('여행 데이터를 불러오지 못했습니다. 다시 검색해 주세요.')
+    } finally {
+      if (latestRequest.current === request) setLoading(false)
+    }
+  }, [])
 
-  if (page === 'results') {
-    return (
-      <ResultsPage
-        destination={destinationName}
-        startDate={startDate}
-        endDate={endDate}
-        tripDays={tripDays}
-        results={results}
-        loading={loading}
-        error={error}
-        onBack={handleBackToSearch}
-        onSearchAgain={handleBackToSearch}
-      />
-    )
-  }
+  const resetSearch = useCallback(() => {
+    // Invalidate pending searches so their responses cannot restore cleared results.
+    latestRequest.current += 1
+    const initialForm = { ...INITIAL_FORM, destinationIds: [] }
+    setForm(initialForm)
+    setConditions(initialForm)
+    setCandidates([])
+    setSelectedCity(null)
+    setSelectedDate(null)
+    setHasSearched(false)
+    setLoading(false)
+    setError('')
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    loadDestinations().then((data) => { if (active) setDestinations(data) }).catch(() => {
+      if (active) setError('도시 목록을 불러오지 못했습니다. 페이지를 새로고침해 주세요.')
+    })
+    runSearch(INITIAL_FORM)
+    return () => { active = false; latestRequest.current += 1 }
+  }, [runSearch])
+
+  const cities = useMemo(() => findCheapestRegions(candidates), [candidates])
+  const cityCandidates = useMemo(() => candidates.filter((item) => item.destination_id === selectedCity?.destination_id), [candidates, selectedCity])
+  const periods = useMemo(() => selectedCity ? findCheapestPeriods(candidates, selectedCity.destination_id) : [], [candidates, selectedCity])
+  const selectedOffer = cityCandidates.find((item) => item.departure_date === selectedDate)
+  const formDestinationIds = resolveDestinationIds(form)
+  const resultDestinationIds = resolveDestinationIds(conditions)
+  const dirty = formDestinationIds.length !== resultDestinationIds.length
+    || formDestinationIds.some((id) => !resultDestinationIds.includes(id))
+    || ['startDate', 'endDate', 'tripDays', 'airlineType'].some((key) => form[key] !== conditions[key])
 
   return (
-    <div className="app">
-      <SearchHome
-        destinationId={destinationId}
-        destinations={destinations}
-        onDestinationChange={setDestinationId}
-        startDate={startDate}
-        endDate={endDate}
-        onPeriodClick={() => setShowCalendar(true)}
-        tripDays={tripDays}
-        onTripDaysChange={setTripDays}
-        airlineType={airlineType}
-        onAirlineTypeChange={setAirlineType}
-        onSearch={handleSearch}
-        loading={loading}
-        error={error}
-      />
-
-      {showCalendar && (
-        <CalendarPopup
-          startDate={startDate}
-          endDate={endDate}
-          onSelectRange={(start, end) => {
-            setStartDate(start)
-            setEndDate(end)
-          }}
-          onClose={() => setShowCalendar(false)}
-          onConfirm={() => setShowCalendar(false)}
-        />
-      )}
-    </div>
+    <RecommendationDashboard
+      form={{ ...form, destinationIds: formDestinationIds }} onFormChange={(key, value) => setForm((current) => ({ ...current, [key]: value }))}
+      conditions={{ ...conditions, destinationIds: resultDestinationIds }} destinations={destinations} cities={cities}
+      selectedCity={selectedCity} cityCandidates={cityCandidates} periods={periods}
+      selectedDate={selectedDate} selectedOffer={selectedOffer}
+      onSelectDate={setSelectedDate}
+      onSelectCity={(city) => { setSelectedCity(city); setSelectedDate(null) }}
+      onBackToCities={() => { setSelectedCity(null); setSelectedDate(null) }}
+      onSearch={() => runSearch(form)} onReset={resetSearch} hasSearched={hasSearched}
+      loading={loading} error={error} dirty={dirty}
+    />
   )
 }

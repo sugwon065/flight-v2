@@ -309,8 +309,8 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  cursor: default;
-  pointer-events: none;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .sky-select-arrow {
@@ -362,3 +362,5 @@
     display: none;
   }
 }
+
+.sky-card-wrap--active .sky-card-rank { color: #fff; }

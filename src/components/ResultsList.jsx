@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import './ResultsList.css'
 
 const AIRPORT_CODES = {
@@ -25,7 +26,7 @@ const AIRPORT_CODES = {
   '시즈오카': 'FSZ',
   '니가타': 'KIJ',
   '아오모리': 'AOJ',
-  '고마쓰': 'KMJ',
+  '고마쓰': 'KMQ',
   '오카야마': 'OKJ',
 }
 
@@ -78,11 +79,18 @@ function formatDuration(minutes) {
   return `${h}시간 ${m}분`
 }
 
-function getFlightSchedule(dateStr, airline, leg) {
-  const seed = hashSeed(`${dateStr}-${airline}-${leg}`)
+function getFlightSchedule(dateStr, airline, leg, airportCode) {
+  const seed = hashSeed(`${dateStr}-${airline}-${leg}-${airportCode}`)
   const depHour = 6 + (seed % 14)
   const depMin = (Math.floor(seed / 7) % 4) * 15
-  const durationMin = 80 + (seed % 40)
+  // Illustrative schedules only; no live flight timetable is connected.
+  const durationByAirport = {
+    NRT: 150, HND: 150, KIX: 115, FUK: 90, CTS: 170, NGO: 120,
+    OKA: 145, KOJ: 100, KIJ: 120, AOJ: 140, SDJ: 135, KMI: 100,
+    KMQ: 110, OKJ: 100, KMJ: 95, MYJ: 95, FSZ: 130, HIJ: 100,
+    OIT: 90, HKD: 160, UKB: 115, KKJ: 90, TAK: 100, HSG: 85, YGJ: 100,
+  }
+  const durationMin = (durationByAirport[airportCode] || 120) + (seed % 4) * 5
   const depTotal = depHour * 60 + depMin
   const arrTotal = depTotal + durationMin
   const arrHour = Math.floor(arrTotal / 60) % 24
@@ -95,18 +103,37 @@ function getFlightSchedule(dateStr, airline, leg) {
   }
 }
 
-function FlightLeg({ from, to, fromCity, toCity, dateStr, airline, leg }) {
-  const { departure, arrival, duration } = getFlightSchedule(dateStr, airline, leg)
+function FlightDateRange({ departureDate, returnDate, tripDays }) {
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토']
+  const renderDate = (iso, label) => {
+    const weekday = new Date(iso + 'T00:00:00').getDay()
+    return <div className="sf-flight-date-endpoint">
+      <span className="sf-flight-date-label">{label}</span>
+      <time dateTime={iso}>{formatShortDate(iso)}<span className={'sf-flight-weekday' + (weekday === 0 ? ' is-sunday' : weekday === 6 ? ' is-saturday' : '')}>({weekdays[weekday]})</span></time>
+    </div>
+  }
+  return <div className="sf-flight-date-range" aria-label="여행 일정">
+    {renderDate(departureDate, '출국')}
+    <span className="sf-flight-date-arrow" aria-hidden="true">→</span>
+    {renderDate(returnDate, '귀국')}
+    <span className="sf-flight-stay">{tripDays - 1}박 {tripDays}일</span>
+  </div>
+}
+
+function FlightLeg({ from, to, fromCity, toCity, dateStr, airline, leg, showDirection = false }) {
+  const { departure, arrival, duration } = getFlightSchedule(dateStr, airline, leg, leg === 'out' ? to : from)
+  const [logoFailed, setLogoFailed] = useState(false)
   const logoSrc = AIRLINE_LOGOS[airline]
 
   return (
     <div className="flight-leg">
       <div className="flight-airline-slot">
-        {logoSrc ? (
-          <img className="flight-airline-logo" src={logoSrc} alt={airline} />
+        {logoSrc && !logoFailed ? (
+          <img className="flight-airline-logo" src={logoSrc} alt={airline} onError={() => setLogoFailed(true)} />
         ) : (
           <span>{airline}</span>
         )}
+        {showDirection && <span className="flight-leg-direction">{leg === 'out' ? '출국' : '귀국'}</span>}
       </div>
 
       <div className="leg-endpoint leg-departure">
@@ -118,7 +145,7 @@ function FlightLeg({ from, to, fromCity, toCity, dateStr, airline, leg }) {
         <span className="leg-duration">{duration}</span>
         <div className="leg-line">
           <span className="leg-bar" />
-          <span className="leg-dot" aria-hidden="true" />
+          <span className="leg-plane" aria-hidden="true">✈</span>
           <span className="leg-bar" />
         </div>
         <span className="leg-direct">직항</span>
@@ -139,34 +166,38 @@ export default function ResultsList({
   activeRank = null,
   embedded = false,
   showPromo = false,
+  onSelect,
+  selectLabel = '일정 선택',
+  variant = 'default',
+  airportCode,
 }) {
-  const isJapanAll = destination === '일본 전체'
-
   if (loading) {
     return (
-      <div className={`results-container ${embedded ? 'embedded' : ''}`}>
-        <div className="results-loading">최저가 날짜를 검색하고 있습니다...</div>
+      <div className={`results-container ${embedded ? 'embedded' : ''} ${variant === 'flight' ? 'sf-flight-results' : ''}`}>
+        <div className="results-loading">항공권 가격을 불러오는 중입니다.</div>
       </div>
     )
   }
 
   if (results.length === 0) {
     return (
-      <div className={`results-container ${embedded ? 'embedded' : ''}`}>
+      <div className={`results-container ${embedded ? 'embedded' : ''} ${variant === 'flight' ? 'sf-flight-results' : ''}`}>
         <div className="results-empty">
           <p>검색 결과가 없습니다.</p>
-          <p className="results-empty-sub">다른 기간이나 도착지를 선택해 보세요.</p>
+          <p className="results-empty-sub">날짜 범위나 도착지를 변경하세요.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className={`results-container ${embedded ? 'embedded' : ''}`}>
+    <div className={`results-container ${embedded ? 'embedded' : ''} ${variant === 'flight' ? 'sf-flight-results' : ''}`}>
       <div className="results-list">
         {results.map((item, index) => {
           const itemDestination = item.destination || destination
-          const destCode = getAirportCode(itemDestination)
+          const destCode = airportCode || getAirportCode(itemDestination)
+          const selected = activeRank === item.rank
+          const tripDays = Math.round((new Date(item.return_date + 'T00:00:00Z') - new Date(item.departure_date + 'T00:00:00Z')) / 86400000) + 1
 
           return (
           <div key={`${item.rank}-${itemDestination}-${item.departure_date}`}>
@@ -174,50 +205,54 @@ export default function ResultsList({
               id={`flight-result-${item.rank}`}
               className={`sky-card-wrap ${activeRank === item.rank ? 'sky-card-wrap--active' : ''}`}
             >
-              <span
+              {variant !== 'flight' && <span
                 className="sky-card-rank"
-                style={{ backgroundColor: item.color }}
+                style={{ backgroundColor: item.color, color: item.color_text }}
               >
                 <span>{item.rank}위</span>
                 {activeRank === item.rank && (
                   <span className="sky-card-rank-destination">{itemDestination}</span>
                 )}
-              </span>
+              </span>}
               <div className="sky-card">
               <div className="sky-card-body">
+                {variant === 'flight' && <FlightDateRange departureDate={item.departure_date} returnDate={item.return_date} tripDays={tripDays} />}
+                {variant === 'flight' && <div className="sky-card-heading"><strong>{item.airline_name}</strong>{item.rank > 0 && <span>{item.rank}위</span>}</div>}
                 <div className="sky-card-legs">
                   <FlightLeg
                     from="ICN"
                     to={destCode}
-                    fromCity="인천"
-                    toCity={itemDestination}
+                    fromCity={variant === 'flight' ? undefined : "인천"}
+                    toCity={variant === 'flight' ? undefined : itemDestination}
                     dateStr={item.departure_date}
                     airline={item.airline_name}
                     leg="out"
+                    showDirection={variant === 'flight'}
                   />
                   <FlightLeg
                     from={destCode}
                     to="ICN"
-                    fromCity={itemDestination}
-                    toCity="인천"
+                    fromCity={variant === 'flight' ? undefined : itemDestination}
+                    toCity={variant === 'flight' ? undefined : "인천"}
                     dateStr={item.return_date}
                     airline={item.airline_name}
                     leg="in"
+                    showDirection={variant === 'flight'}
                   />
                 </div>
               </div>
 
               <div className="sky-card-price">
-                <button className="save-btn" type="button" tabIndex={-1} aria-hidden="true">
-                  ♡
-                </button>
+                {variant !== 'flight' && <button className="save-btn" type="button" tabIndex={-1} aria-hidden="true">♡</button>}
                 <span className="price-tag">
-                  {formatShortDate(item.departure_date)} 출발 ·{' '}
-                  {formatShortDate(item.return_date)} 도착
+                  {variant === 'flight' ? '왕복 · 성인 1인' : <>{formatShortDate(item.departure_date)} 출발 · {formatShortDate(item.return_date)} 도착</>}
                 </span>
                 <span className="price-amount">{formatPrice(item.round_trip_price)}</span>
-                <button className="sky-select-btn" type="button">
-                  선택하기
+                {variant === 'flight' && <span className="flight-trip-duration">{item.airline_type}</span>}
+                <button className="sky-select-btn" type="button" onClick={() => onSelect?.(item)}
+                  aria-pressed={variant === 'flight' ? selected : undefined}
+                  aria-label={variant === 'flight' ? `${formatShortDate(item.departure_date)} 출국 ${formatShortDate(item.return_date)} 귀국 일정 선택` : undefined}>
+                  {variant === 'flight' && selected ? '선택한 일정' : selectLabel}
                   <span className="sky-select-arrow" aria-hidden="true">→</span>
                 </button>
               </div>

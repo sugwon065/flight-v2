@@ -499,10 +499,10 @@ export default function SearchHome({
             <div className="sh-project-modal-body sh-algorithm-body">
               <section className="sh-algorithm-intro">
                 <span>REVISED ALGORITHM</span>
-                <h3>여러 지역·여러 기간의 최저가 Top 5</h3>
+                <h3>저렴한 지역 5개에서, 여행 기간 5개로</h3>
                 <p>
-                  검색 범위 안의 모든 가능한 일정을 비교한 뒤, 비슷한 지역과 날짜를
-                  제거해 다양한 최저가 일정을 추천합니다.
+                  검색 범위 안에서 지역별 최저가를 비교합니다. 지역을 클릭하면
+                  같은 조건으로 그 지역의 저렴한 여행 기간 5개를 보여줍니다.
                 </p>
               </section>
 
@@ -519,18 +519,18 @@ export default function SearchHome({
                 </li>
                 <li>
                   <span>03</span>
-                  <strong>유사 일정 제거</strong>
-                  <p>같은 지역·같은 출발 주차는 가장 싼 일정 하나만</p>
+                  <strong>1차: 지역 5개 선택</strong>
+                  <p>지역마다 최저가 일정 하나를 비교해 저렴한 지역 5개 선정</p>
                 </li>
                 <li>
                   <span>04</span>
-                  <strong>다양성 적용</strong>
-                  <p>지역 중복 방지 · 출발 주차 분산 · 여러 달 분산</p>
+                  <strong>지역 클릭</strong>
+                  <p>달력이나 카드에서 원하는 지역을 선택</p>
                 </li>
                 <li>
                   <span>05</span>
-                  <strong>Top 5 정렬</strong>
-                  <p>가격 → 할인율 → 출발일 순</p>
+                  <strong>2차: 기간 5개 선택</strong>
+                  <p>선택한 지역의 일정을 가격 → 출발일 순으로 비교</p>
                 </li>
               </ol>
 
@@ -543,26 +543,23 @@ export default function SearchHome({
                 <article>
                   <span>AREA</span>
                   <h4>지역 규칙</h4>
-                  <p>일본 전체 검색은 서로 다른 목적지를, 특정 지역 검색은 서로 다른 출발 주차를 우선합니다.</p>
+                  <p>일본 전체 검색은 저렴한 지역 5개를 보여줍니다. 특정 지역을 검색하면 해당 지역의 기간 5개를 바로 보여줍니다.</p>
                 </article>
                 <article>
                   <span>RANGE</span>
                   <h4>분산 규칙</h4>
-                  <p>같은 주에 시작하는 유사 일정은 하나만 남기고, 여러 달 검색은 월별 후보를 우선 포함합니다.</p>
+                  <p>지역을 선택해도 처음 입력한 날짜 범위·여행 일수·항공사 조건을 유지합니다.</p>
                 </article>
               </div>
 
               <div className="sh-algorithm-relax">
-                <strong>후보가 5개보다 적을 때만 규칙 완화</strong>
-                <span>월 다양성 완화</span>
-                <b aria-hidden="true">→</b>
-                <span>주차 중복 일부 허용</span>
-                <b aria-hidden="true">→</b>
-                <span>목적지 중복 허용</span>
+                <strong>왕복 가격 기준으로 최대 5개 표시</strong>
+                <span>기간이 겹치는 일정도 포함</span>
+                <span>후보가 부족하면 있는 결과만 표시</span>
               </div>
 
               <p className="sh-algorithm-core">
-                가격을 1순위로 유지하면서 지역과 기간의 다양성을 규칙으로 보장합니다.
+                할인율이 아닌 실제 왕복 가격으로 비교하고, 지역 선택 후 저렴한 여행 기간을 확인합니다.
               </p>
             </div>
           </section>

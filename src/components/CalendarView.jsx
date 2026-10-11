@@ -1,291 +1,155 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './CalendarView.css'
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
-const MONTHS = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
 
 export function toDateStr(date) {
   if (!date) return ''
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0')
 }
 
-function getDaysInMonth(year, month) {
-  return new Date(year, month + 1, 0).getDate()
+function shortDate(value) {
+  const date = new Date(value + 'T00:00:00')
+  return (date.getMonth() + 1) + '/' + date.getDate()
 }
 
-function getRangeLineType(date, rangeStart, rangeEnd) {
-  if (!rangeStart || !rangeEnd) return null
-
-  const time = date.getTime()
-  const start = rangeStart.getTime()
-  const end = rangeEnd.getTime()
-  if (time < start || time > end) return null
-  if (start === end) return 'single'
-  if (time === start) return 'start'
-  if (time === end) return 'end'
-  return 'middle'
-}
-
-function getLineClass(lineType, date) {
-  if (!lineType) return ''
-  const dow = date.getDay()
-  let extra = ''
-  if (lineType === 'start' && dow === 0) extra = ' range-line--week-start'
-  if (lineType === 'end' && dow === 6) extra = ' range-line--week-end'
-  return `range-line--${lineType}${extra}`
-}
-
-function getTripLane(date, trip, tripRanges) {
-  const weekStart = new Date(date)
-  weekStart.setDate(date.getDate() - date.getDay())
-  weekStart.setHours(0, 0, 0, 0)
-
-  const weekEnd = new Date(weekStart)
-  weekEnd.setDate(weekStart.getDate() + 6)
-
-  const activeTrips = (tripRanges || [])
-    .map((item) => {
-      const start = new Date(item.start + 'T00:00:00')
-      const end = new Date(item.end + 'T00:00:00')
-      return {
-        ...item,
-        startDate: start,
-        endDate: end,
-      }
-    })
-    .filter((item) => item.startDate <= weekEnd && item.endDate >= weekStart)
-    .sort((left, right) => {
-      const startDifference = left.startDate.getTime() - right.startDate.getTime()
-      if (startDifference !== 0) {
-        return startDifference
-      }
-      return right.rank - left.rank
-    })
-
-  return Math.max(0, activeTrips.findIndex((item) => item.rank === trip.rank))
-}
-
-function MonthCalendar({
-  year,
-  month,
-  startDate,
-  endDate,
-  onDayClick,
-  onTripClick,
-  tripRanges,
-  readOnly,
-}) {
-  const firstDay = new Date(year, month, 1).getDay()
-  const daysInMonth = getDaysInMonth(year, month)
+function MonthCalendar({ year, month, startDate, endDate, onDayClick, onTripClick,
+  results, selectedTrip, onPreview, readOnly, tripActionLabel }) {
+  const [expandedDay, setExpandedDay] = useState(null)
   const cells = []
+  const offset = new Date(year, month, 1).getDay()
+  const days = new Date(year, month + 1, 0).getDate()
+  for (let i = 0; i < offset; i++) cells.push(<div key={'empty-' + i} className="cal-day empty" />)
 
-  for (let i = 0; i < firstDay; i++) {
-    cells.push(<div key={`empty-${i}`} className="cal-day empty" />)
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
+  for (let day = 1; day <= days; day++) {
     const date = new Date(year, month, day)
-    const dateStr = toDateStr(date)
-
-    const tripLines = (tripRanges || [])
-      .map((trip) => {
-        const tripStart = new Date(trip.start + 'T00:00:00')
-        const tripEnd = new Date(trip.end + 'T00:00:00')
-        const lineType = getRangeLineType(date, tripStart, tripEnd)
-        if (!lineType) return null
-        return {
-          type: lineType,
-          color: trip.color,
-          rank: trip.rank,
-          destination: trip.destination,
-          lane: getTripLane(date, trip, tripRanges),
-        }
-      })
-      .filter(Boolean)
-
+    const iso = toDateStr(date)
+    const departures = results.filter((item) => item.departure_date === iso)
     let className = 'cal-day'
-    if (startDate && toDateStr(startDate) === dateStr) className += ' selected-start'
-    if (endDate && toDateStr(endDate) === dateStr) className += ' selected-end'
-    if (startDate && endDate && date > startDate && date < endDate) className += ' in-range'
-    if (readOnly) className += ' readonly'
-
-    const DayElement = readOnly ? 'div' : 'button'
-
+    if (readOnly) {
+      className += ' readonly'
+      if (selectedTrip && iso >= selectedTrip.departure_date && iso <= selectedTrip.return_date) className += ' trip-preview'
+      if (selectedTrip?.departure_date === iso) className += ' trip-preview-start'
+      if (selectedTrip?.return_date === iso) className += ' trip-preview-end'
+      if (iso < toDateStr(startDate) || iso > toDateStr(endDate)) className += ' outside-search'
+    } else {
+      if (toDateStr(startDate) === iso) className += ' selected-start'
+      if (toDateStr(endDate) === iso) className += ' selected-end'
+      if (startDate && endDate && date > startDate && date < endDate) className += ' in-range'
+    }
+    const Day = readOnly ? 'div' : 'button'
     cells.push(
-      <DayElement
-        key={day}
-        className={className}
-        onClick={readOnly ? undefined : () => onDayClick?.(date)}
-        type={readOnly ? undefined : 'button'}
-      >
+      <Day key={day} className={className} style={readOnly && selectedTrip ? { '--preview-color': selectedTrip.color } : undefined} type={readOnly ? undefined : 'button'} onClick={readOnly ? undefined : () => onDayClick?.(date)}>
         <span className="day-num">{day}</span>
-        {tripLines.length > 0 && (
-          <div className="day-lines">
-            {tripLines.map((line) => (
-              <span
-                key={`trip-${line.rank}`}
-                className={`range-line range-line--trip ${getLineClass(line.type, date)}`}
-                style={{
-                  '--trip-color': line.color,
-                  bottom: `${3 + (line.lane % 2) * 6}px`,
-                  zIndex: line.lane + 1,
-                }}
-              >
-                {(line.type === 'start' || line.type === 'single') && (
-                  readOnly ? (
-                    <button
-                      className="range-rank-badge"
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        onTripClick?.(line.rank)
-                      }}
-                      aria-label={`${line.rank}위 ${line.destination} 항공권 보기`}
-                    >
-                      <span>{line.rank}</span>
-                      <span className="range-destination">{line.destination}</span>
-                    </button>
-                  ) : (
-                    <b className="range-rank-badge">
-                      <span>{line.rank}</span>
-                      <span className="range-destination">{line.destination}</span>
-                    </b>
-                  )
-                )}
-              </span>
+        {readOnly && departures.length > 0 && (
+          <div className="departure-markers">
+            <button className={'departure-rank' + (selectedTrip?.rank === departures[0].rank ? ' is-active' : '')}
+              type="button" style={{ backgroundColor: departures[0].color, color: departures[0].color_text }} onClick={() => onTripClick?.(departures[0].rank)}
+              onMouseEnter={() => onPreview(departures[0].rank)} onMouseLeave={() => onPreview(null)}
+              onFocus={() => onPreview(departures[0].rank)} onBlur={() => onPreview(null)}
+              aria-label={departures[0].rank + '위 ' + departures[0].destination + ' ' + tripActionLabel}>
+              {departures[0].rank}
+            </button>
+            {departures.length > 1 && (
+              <button className="departure-more" type="button" aria-expanded={expandedDay === iso}
+                aria-label={shortDate(iso) + ' 출발 일정 ' + departures.length + '개 보기'}
+                onClick={() => setExpandedDay(expandedDay === iso ? null : iso)}>+{departures.length - 1}</button>
+            )}
+          </div>
+        )}
+        {readOnly && expandedDay === iso && departures.length > 1 && (
+          <div className="departure-popover" onKeyDown={(event) => { if (event.key === 'Escape') setExpandedDay(null) }}>
+            <div className="departure-popover-heading">{shortDate(iso)} 출발 <button type="button" aria-label="출발 일정 목록 닫기" onClick={() => setExpandedDay(null)}>×</button></div>
+            {departures.map((item) => (
+              <button type="button" key={item.rank} onClick={() => { setExpandedDay(null); onTripClick?.(item.rank) }}
+                onMouseEnter={() => onPreview(item.rank)} onMouseLeave={() => onPreview(null)}
+                onFocus={() => onPreview(item.rank)} onBlur={() => onPreview(null)}>
+                <span>{item.rank}위 {item.destination}</span><strong>₩{item.round_trip_price.toLocaleString('ko-KR')}</strong>
+              </button>
             ))}
           </div>
         )}
-      </DayElement>
+      </Day>,
     )
   }
-
+  if (readOnly) {
+    while (cells.length % 7 !== 0) cells.push(<div key={'tail-' + cells.length} className="cal-day empty" />)
+  }
   return (
     <div className="month-cal">
-      <div className="month-title">
-        {year}년 {MONTHS[month]}
-      </div>
-      <div className="weekday-row">
-        {WEEKDAYS.map((w) => (
-          <span key={w} className="weekday">
-            {w}
-          </span>
-        ))}
-      </div>
+      <div className="month-title">{year}년 {month + 1}월</div>
+      <div className="weekday-row">{WEEKDAYS.map((day) => <span key={day} className="weekday">{day}</span>)}</div>
       <div className="days-grid">{cells}</div>
     </div>
   )
 }
 
-export default function CalendarView({
-  startDate,
-  endDate,
-  onDayClick,
-  onTripClick,
-  results = [],
-  tripRanges = [],
-  readOnly = false,
-  initialYear = 2026,
-  initialMonth = 0,
-  showNav = true,
-  title,
-}) {
-  const [viewYear, setViewYear] = useState(initialYear)
-  const [viewMonth, setViewMonth] = useState(initialMonth)
+export default function CalendarView({ startDate, endDate, onDayClick, onTripClick,
+  results = [], readOnly = false, initialYear = 2026, initialMonth = 0, showNav = true,
+  title, tripActionLabel = '항공권 보기', activeRank = null, regionStage = false }) {
+  const firstDeparture = readOnly && results[0] ? new Date(results[0].departure_date + 'T00:00:00') : null
+  const [viewDate, setViewDate] = useState(() => new Date(firstDeparture?.getFullYear() ?? initialYear, firstDeparture?.getMonth() ?? initialMonth, 1))
+  const [previewRank, setPreviewRank] = useState(null)
+  const selectedTrip = results.find((item) => item.rank === (previewRank ?? activeRank))
+  const viewYear = viewDate.getFullYear()
+  const viewMonth = viewDate.getMonth()
 
-  const month2 = viewMonth === 11 ? 0 : viewMonth + 1
-  const year2 = viewMonth === 11 ? viewYear + 1 : viewYear
+  useEffect(() => {
+    const active = results.find((item) => item.rank === activeRank)
+    if (readOnly && active) {
+      const date = new Date(active.departure_date + 'T00:00:00')
+      setViewDate(new Date(date.getFullYear(), date.getMonth(), 1))
+    }
+  }, [activeRank, readOnly, results])
 
-  const prevMonth = () => {
-    if (viewMonth === 0) {
-      setViewYear(viewYear - 1)
-      setViewMonth(11)
-    } else {
-      setViewMonth(viewMonth - 1)
+  const preview = (rank) => {
+    setPreviewRank(rank)
+    const item = results.find((result) => result.rank === rank)
+    if (item) {
+      const date = new Date(item.departure_date + 'T00:00:00')
+      if (date.getFullYear() !== viewYear || date.getMonth() !== viewMonth) {
+        setViewDate(new Date(date.getFullYear(), date.getMonth(), 1))
+      }
     }
   }
-
-  const nextMonth = () => {
-    if (viewMonth === 11) {
-      setViewYear(viewYear + 1)
-      setViewMonth(0)
-    } else {
-      setViewMonth(viewMonth + 1)
-    }
-  }
+  const moveMonth = (offset) => setViewDate(new Date(viewYear, viewMonth + offset, 1))
+  const calendarProps = { startDate, endDate, onDayClick, onTripClick, results, selectedTrip, onPreview: preview, readOnly, tripActionLabel }
 
   return (
-    <div className={`calendar-view ${readOnly ? 'calendar-view--readonly' : ''}`}>
+    <div className={'calendar-view' + (readOnly ? ' calendar-view--readonly calendar-view--deals' : '')}>
       {(showNav || title) && (
-        <div className={`cal-header ${showNav ? '' : 'cal-header--title-only'}`}>
-          {showNav && (
-            <button className="cal-nav" onClick={prevMonth} type="button">
-              ‹
-            </button>
-          )}
+        <div className="cal-header">
+          {showNav && <button className="cal-nav" type="button" aria-label="이전 달" onClick={() => moveMonth(-1)}>‹</button>}
           <span className="cal-header-title">
-            {readOnly && title ? (
-              <>
-                <span className="cal-period-label">선택한 여행 기간</span>
-                <span className="cal-period-range">
-                  <span className="cal-period-icon" aria-hidden="true">▣</span>
-                  {title}
-                </span>
-              </>
-            ) : (
-              title || '여행 가능 기간'
-            )}
+            {readOnly ? <><span className="cal-period-label">여행 가능 기간</span><span className="cal-period-range">{title}</span></> : title || '여행 가능 기간'}
           </span>
-          {showNav && (
-            <button className="cal-nav" onClick={nextMonth} type="button">
-              ›
-            </button>
-          )}
+          {showNav && <button className="cal-nav" type="button" aria-label="다음 달" onClick={() => moveMonth(1)}>›</button>}
         </div>
       )}
-
       <div className="cal-months">
-        <MonthCalendar
-          year={viewYear}
-          month={viewMonth}
-          startDate={startDate}
-          endDate={endDate}
-          onDayClick={onDayClick}
-          onTripClick={onTripClick}
-          tripRanges={tripRanges}
-          readOnly={readOnly}
-        />
-        <MonthCalendar
-          year={year2}
-          month={month2}
-          startDate={startDate}
-          endDate={endDate}
-          onDayClick={onDayClick}
-          onTripClick={onTripClick}
-          tripRanges={tripRanges}
-          readOnly={readOnly}
-        />
+        <MonthCalendar key={viewYear + '-' + viewMonth} year={viewYear} month={viewMonth} {...calendarProps} />
+        {!readOnly && <MonthCalendar year={viewMonth === 11 ? viewYear + 1 : viewYear} month={(viewMonth + 1) % 12} {...calendarProps} />}
       </div>
-
-      {results.length > 0 && (
-        <>
-          <div className="rank-legend">
-            {results.map((r) => (
-              <span key={r.rank} className="legend-item">
-                <span className="legend-line" style={{ background: r.color }} />
-                {r.rank}위 왕복
-              </span>
+      {readOnly && results.length > 0 && (
+        <div className="deal-picker">
+          <div className="deal-picker-heading"><span>{regionStage ? '어디로 떠날까요?' : '언제 떠날까요?'}</span><small>{regionStage ? '초록 → 빨강 · 왕복 가격순' : '짙은색 → 옅은색 · 왕복 가격순'}</small></div>
+          <div className="deal-options">
+            {results.map((item) => (
+              <button type="button" key={item.rank} style={{ '--deal-color': item.color, '--deal-text': item.color_text }} className={'deal-option' + (selectedTrip?.rank === item.rank ? ' is-active' : '')}
+                onClick={() => onTripClick?.(item.rank)} onMouseEnter={() => preview(item.rank)} onMouseLeave={() => preview(null)}
+                onFocus={() => preview(item.rank)} onBlur={() => preview(null)}
+                aria-label={item.rank + '위 ' + item.destination + ' ' + shortDate(item.departure_date) + ' 출발 ' + tripActionLabel}>
+                <span className="deal-option-top"><span className="deal-option-rank">{item.rank}</span><span>{regionStage ? item.destination : shortDate(item.departure_date) + ' – ' + shortDate(item.return_date)}</span></span>
+                <strong>₩{item.round_trip_price.toLocaleString('ko-KR')}</strong>
+                <span className="deal-option-meta">{regionStage ? shortDate(item.departure_date) + ' – ' + shortDate(item.return_date) : item.destination}</span>
+              </button>
             ))}
           </div>
-          {readOnly && (
-            <p className="rank-legend-caption">
-              색상으로 표시된 기간이 왕복 최저가 순위입니다.
-            </p>
-          )}
-        </>
+          <p className="deal-picker-hint">{regionStage ? '숫자는 출발일 순위입니다. 지역을 선택하면 저렴한 기간 5개를 보여드려요.' : '숫자는 출발일 순위입니다. 일정을 선택하면 아래 항공권으로 이동해요.'}</p>
+          <div className="deal-preview-summary" aria-live="polite">
+            {selectedTrip ? <><strong>{selectedTrip.destination}</strong><span>{shortDate(selectedTrip.departure_date)} 출발 → {shortDate(selectedTrip.return_date)} 귀국</span></> : <span>카드에 마우스를 올리거나 키보드로 선택하면 여행 기간을 미리 볼 수 있어요.</span>}
+          </div>
+        </div>
       )}
     </div>
   )

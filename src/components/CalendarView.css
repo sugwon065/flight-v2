@@ -1,264 +1,74 @@
 @import './CalendarPopup.css';
 
-.calendar-view {
-  background: #fff;
+.calendar-view { background: #fff; }
+.results-calendar-panel .calendar-view { background: transparent; }
+.calendar-view--deals .cal-header { padding: 0 0 22px; border: 0; gap: 12px; }
+.calendar-view--deals .cal-header-title { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.calendar-view--deals .cal-period-label { font-size: 11px; color: #94a3b8; font-weight: 500; }
+.calendar-view--deals .cal-period-range { font-size: 14px; font-weight: 600; color: #334155; }
+.calendar-view--deals .cal-nav { width: 34px; height: 34px; border: 1px solid #e2e8f0; border-radius: 10px; color: #475569; background: #fff; font-size: 24px; cursor: pointer; flex-shrink: 0; }
+.calendar-view--deals .cal-nav:hover { background: #f8fafc; }
+.results-col-center .results-calendar-panel .cal-months { display: block; }
+.results-col-center .results-calendar-panel .cal-months::after { display: none; }
+.calendar-view--deals .month-title { font-size: 22px; font-weight: 700; color: #0f172a; margin-bottom: 20px; }
+.calendar-view--deals .weekday { color: #94a3b8; font-size: 11px; padding-bottom: 10px; }
+.calendar-view--deals .weekday:first-child { color: #e87979; }
+.calendar-view--deals .weekday:last-child { color: #6395cd; }
+.calendar-view--deals .days-grid { gap: 4px; }
+.calendar-view--deals .cal-day { height: 62px; min-height: 62px; aspect-ratio: auto; padding: 8px 2px 0; border-radius: 9px; background: #f8fafc; color: #475569; font-size: 12px; position: relative; transition: background .15s; }
+.calendar-view--deals .cal-day.readonly:hover { background: #f8fafc; }
+.calendar-view--deals .cal-day.empty { background: transparent; }
+.calendar-view--deals .cal-day.outside-search { background: transparent; color: #cbd5e1; }
+.calendar-view--deals .cal-day.trip-preview,
+.calendar-view--deals .cal-day.trip-preview:hover { background: #eaf3ff; color: #1766bb; }
+.calendar-view--deals .cal-day.trip-preview-start,
+.calendar-view--deals .cal-day.trip-preview-end { box-shadow: inset 0 0 0 1px #a6ccfa; }
+.calendar-view--deals .day-num { font-size: 12px; font-weight: 500; line-height: 16px; }
+.departure-markers { position: absolute; bottom: 7px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 3px; }
+.departure-rank, .departure-more { border: 0; border-radius: 6px; min-width: 22px; height: 22px; padding: 0 4px; font-size: 10px; font-family: inherit; font-weight: 700; cursor: pointer; background: #e2e8f0; color: #475569; }
+.departure-rank:hover, .departure-rank.is-active { background: #1675df; color: #fff; }
+.departure-more { color: #64748b; background: transparent; font-weight: 500; }
+.departure-more:hover { background: #e2e8f0; }
+.departure-popover { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 220px; z-index: 20; padding: 10px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; box-shadow: 0 10px 30px #0f172a20; }
+.departure-popover-heading { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 6px; font-weight: 700; }
+.departure-popover button { cursor: pointer; font-family: inherit; }
+.departure-popover-heading button { background: none; border: 0; color: #64748b; font-size: 20px; }
+.departure-popover > button { display: flex; justify-content: space-between; gap: 8px; width: 100%; border: 0; border-radius: 6px; padding: 9px 5px; background: #fff; color: #334155; font-size: 11px; }
+.departure-popover > button:hover { background: #eff6ff; }
+.deal-picker { margin-top: 18px; border-top: 1px solid #edf1f5; padding-top: 18px; }
+.deal-picker-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; font-weight: 700; color: #334155; }
+.deal-picker-heading small { font-size: 10px; font-weight: 400; color: #94a3b8; }
+.deal-options { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; }
+.deal-option { text-align: left; padding: 12px 9px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; color: #334155; cursor: pointer; font-family: inherit; transition: border-color .15s, background .15s; min-width: 0; }
+.deal-option:hover, .deal-option.is-active { border-color: #80b7f4; background: #f4f9ff; }
+.deal-option-top { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.deal-option-rank { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; flex-shrink: 0; border-radius: 5px; background: #f1f5f9; color: #64748b; font-size: 9px; }
+.deal-option.is-active .deal-option-rank { background: #1675df; color: #fff; }
+.deal-option strong { display: block; margin: 10px 0 5px; font-size: 15px; letter-spacing: -.4px; color: #0f172a; }
+.deal-option-meta { display: block; font-size: 10px; color: #94a3b8; }
+.deal-picker-hint { margin: 12px 0 0; font-size: 10px; line-height: 1.6; color: #94a3b8; }
+.deal-preview-summary { min-height: 30px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; font-size: 11px; color: #64748b; }
+.deal-preview-summary strong { color: #1675df; font-weight: 600; }
+.calendar-view--deals button:focus-visible { outline: 2px solid #1675df; outline-offset: 3px; }
+@media (max-width: 1100px) { .deal-options { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .deal-options { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .calendar-view--deals .cal-day { height: 54px; min-height: 54px; }
+  .calendar-view--deals .month-title { font-size: 20px; }
+  .calendar-view--deals .cal-period-range { font-size: 12px; }
+  .deal-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .departure-rank, .departure-more { min-width: 16px; height: 18px; padding: 0 2px; font-size: 9px; }
+  .departure-markers { gap: 1px; }
+  .departure-popover { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 240px; }
 }
 
-.calendar-view--readonly .cal-day.readonly {
-  cursor: default;
-}
-
-.calendar-view--readonly .cal-day.readonly:hover {
-  background: none;
-}
-
-.calendar-view--readonly .cal-day.readonly:disabled {
-  opacity: 1;
-}
-
-.results-calendar-panel .calendar-view {
-  background: transparent;
-}
-
-.results-calendar-panel .cal-header {
-  padding: 0 0 14px;
-  border: 0;
-}
-
-.results-calendar-panel .cal-header--title-only {
-  justify-content: center;
-}
-
-.results-calendar-panel .cal-header-title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  color: #0b172d;
-  font-size: 21px;
-  font-weight: 800;
-}
-
-.results-calendar-panel .cal-period-label {
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.results-calendar-panel .cal-period-range {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  padding: 8px 17px;
-  border: 1px solid #d5e5f7;
-  border-radius: 999px;
-  background: #f3f8fe;
-  box-shadow: 0 3px 10px rgba(15, 74, 132, 0.08);
-  color: #082746;
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0.025em;
-}
-
-.results-calendar-panel .cal-period-icon {
-  color: #0777dc;
-  font-size: 14px;
-  line-height: 1;
-}
-
-.results-calendar-panel .cal-nav {
-  width: 42px;
-  height: 42px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 5px 13px rgba(18, 42, 66, 0.08);
-  color: #0d2038;
-  font-size: 30px;
-}
-
-.results-calendar-panel .cal-months {
-  gap: 54px;
-}
-
-.results-col-center .results-calendar-panel .cal-months {
-  position: relative;
-  gap: 18px;
-}
-
-.results-col-center .results-calendar-panel .cal-months::after {
-  content: '';
-  position: absolute;
-  top: 34px;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: #dce4ed;
-  transform: translateX(-0.5px);
-  pointer-events: none;
-}
-
-.results-col-center .results-calendar-panel .cal-day {
-  min-height: 43px;
-}
-
-.results-col-center .results-calendar-panel .day-num {
-  position: absolute;
-  top: 5px;
-  left: 0;
-  right: 0;
-  font-size: 11px;
-  line-height: 1;
-  text-align: center;
-}
-
-.results-col-center .results-calendar-panel .rank-legend {
-  gap: 5px;
-}
-
-.results-col-center .results-calendar-panel .legend-item {
-  min-width: 0;
-  flex: 1;
-}
-
-.results-calendar-panel .month-title {
-  margin-bottom: 12px;
-  color: #111c30;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.results-calendar-panel .weekday {
-  padding: 6px 0 8px;
-  color: #263449;
-  font-size: 12px;
-}
-
-.results-calendar-panel .days-grid {
-  gap: 4px;
-}
-
-.results-calendar-panel .cal-day {
-  min-height: 56px;
-  aspect-ratio: auto;
-  padding-top: 9px;
-  overflow: visible;
-  border-radius: 10px;
-  background: #f3f7fc;
-  color: #162033;
-  font-size: 13px;
-}
-
-.results-calendar-panel .cal-day.empty {
-  background: transparent;
-}
-
-.results-calendar-panel .calendar-view--readonly .cal-day.readonly:hover,
-.results-calendar-panel .calendar-view--readonly .cal-day.in-range {
-  background: #f3f7fc;
-  color: #162033;
-}
-
-.results-calendar-panel .calendar-view--readonly .cal-day.selected-start,
-.results-calendar-panel .calendar-view--readonly .cal-day.selected-end {
-  background: linear-gradient(145deg, #1b7ff1, #0670e3);
-  color: #fff;
-  box-shadow: 0 5px 12px rgba(7, 112, 227, 0.22);
-}
-
-.results-calendar-panel .range-line--trip {
-  height: 7px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--trip-color) 66%, white);
-}
-
-.results-calendar-panel .range-line--trip.range-line--start {
-  left: 14%;
-  right: -3px;
-}
-
-.results-calendar-panel .range-line--trip.range-line--end {
-  left: -3px;
-  right: 8%;
-}
-
-.results-calendar-panel .range-line--trip.range-line--middle {
-  left: -3px;
-  right: -3px;
-}
-
-.results-calendar-panel .range-rank-badge {
-  position: absolute;
-  z-index: 3;
-  left: -1px;
-  top: 50%;
-  min-width: 16px;
-  width: max-content;
-  height: 16px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 0 5px 0 4px;
-  transform: translateY(-50%);
-  border-radius: 5px;
-  border: 0;
-  background: var(--trip-color);
-  color: #0b172d;
-  font-size: 9px;
-  line-height: 1;
-  white-space: nowrap;
-  font-family: inherit;
-  cursor: pointer;
-  pointer-events: auto;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
-}
-
-.results-calendar-panel .day-lines {
-  pointer-events: auto;
-}
-
-.results-calendar-panel .range-destination {
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: -0.2px;
-}
-
-.results-calendar-panel .rank-legend {
-  gap: 8px;
-  margin-top: 16px;
-  padding-top: 16px;
-}
-
-.results-calendar-panel .legend-item {
-  min-width: 128px;
-  height: 32px;
-  justify-content: center;
-  border: 1px solid #e2e8f0;
-  border-radius: 9px;
-  color: #263449;
-  background: #fff;
-  font-size: 11px;
-}
-
-.results-calendar-panel .legend-line {
-  width: 16px;
-  height: 16px;
-  border-radius: 5px;
-}
-
-.results-calendar-panel .rank-legend-caption {
-  margin: 8px 0 0;
-  color: #94a3b8;
-  font-size: 11px;
-  line-height: 1.4;
-  text-align: center;
-}
-
-@media (max-width: 900px) {
-  .results-calendar-panel .cal-months {
-    flex-direction: column;
-    gap: 28px;
-  }
-}
+/* Rank colors stay consistent across destination cards, dates and flight cards. */
+.calendar-view--deals .cal-day.trip-preview,
+.calendar-view--deals .cal-day.trip-preview:hover { background: color-mix(in srgb, var(--preview-color) 18%, white); color: #334155; }
+.calendar-view--deals .cal-day.trip-preview-start,
+.calendar-view--deals .cal-day.trip-preview-end { box-shadow: inset 0 0 0 1px var(--preview-color); }
+.departure-rank.is-active { outline: 2px solid #334155; outline-offset: 2px; }
+.deal-option { border-top: 3px solid var(--deal-color); }
+.deal-option:hover, .deal-option.is-active { border-color: var(--deal-color); background: color-mix(in srgb, var(--deal-color) 9%, white); }
+.deal-option .deal-option-rank,
+.deal-option.is-active .deal-option-rank { background: var(--deal-color); color: var(--deal-text); }
